@@ -1,0 +1,116 @@
+# =============================================
+# DETION ARENA - .gitignore
+# =============================================
+
+# >>> ARCHIVOS TEMPORALES Y DE SISTEMA <<<
+# =============================================
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+.benv/
+
+# Streamlit
+.streamlit/
+
+# Archivos del sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos temporales
+*.tmp
+*.temp
+*.log
+logs/
+
+# Archivos de base de datos
+*.db
+*.sqlite3
+
+# >>> ARCHIVOS SENSIBLES (NO SUBIR) <<<
+# =============================================
+# Configuración sensible
+config.py
+secrets.py
+*.key
+*.pem
+.env
+.env.local
+.env.production
+
+# Contraseñas y datos privados
+passwords.txt
+credentials.json
+serviceAccountKey.json
+
+# >>> ARCHIVOS QUE SÍ DEBEN SUBIRSE <<<
+# =============================================
+# IMPORTANTE: ¡NO ignorar los archivos esenciales del proyecto!
+!assets/**/*.png
+!assets/**/*.jpg
+!assets/**/*.jpeg
+!assets/**/*.json
+!assets/**/*.mp3
+!*.py
+
+# >>> EXCEPCIONES ESPECÍFICAS <<<
+# =============================================
+# Asegurar que los archivos de datos se suban
+!assets/data/
+!assets/data/*.json
+!assets/data/encuentros/
+!assets/data/encuentros/*.json
+
+# Asegurar que las imágenes se suban
+!assets/imagenes/
+!assets/imagenes/*.png
+!assets/imagenes/*.jpg
+
+# Asegurar que el audio se suba
+!assets/audio/
+!assets/audio/*.mp3
+!assets/audio/*.wav
+
+# >>> SISTEMA OPERATIVO <<<
+# =============================================
+[Tt]humbs.db
+
+# >>> BACKUPS <<<
+# =============================================
+*.bak
+*.backup
