@@ -1,0 +1,26 @@
+{
+    "ronda_1": [
+        {"rango": "1-16", "enemigos": "1d6 Esqueletos (Lucero del Alba, Escudo) y 1d6 Esqueletos (Arco Largo, Daga)"},
+        {"rango": "17-33", "enemigos": "1d3 Demonios de Sangre (Espada Larga Maldita) y 1 Guardian de la Tumba (Martillo de Guerra)"},
+        {"rango": "34-50", "enemigos": "1d2 Asesinos Elfos Oscuros (Arco Corto, Daga) y 2 Arpías"},
+        {"rango": "51-66", "enemigos": "1d2 Licántropos y 1 Oso Cavernario"},
+        {"rango": "67-83", "enemigos": "1d4 Raptores y 1d6 Saurios de Elite (Lucero del Alba, Escudo)"},
+        {"rango": "84-100", "enemigos": "1 Araña Gigantesca y 1d2 Enredadores"}
+    ],
+    "ronda_2": [
+        {"rango": "1-16", "enemigos": "1d4 Demonios de Plaga (Espada Ancha) y 1 Psíquico (He:2 Mele,1 Distancia, 1 Apoyo)"},
+        {"rango": "17-33", "enemigos": "1 Ciempiés Gigante"},
+        {"rango": "34-50", "enemigos": "1d2 Minotauros (Hacha de Batalla, Escudo) y 1 Minotauro Esqueleto (Gran Hacha)"},
+        {"rango": "51-66", "enemigos": "2 Lagartos (Red, Espada Corta) y 2 Nagas (Espada Corta)"},
+        {"rango": "67-83", "enemigos": "1d2 Esfinges y 1d6 Gárgolas"},
+        {"rango": "84-100", "enemigos": "2 Enredadores"}
+    ],
+    "ronda_3": [
+        {"rango": "1-16", "enemigos": "1 Ettin (Martillo de Guerra) y 1d4 Gnolls (Espada Larga, Escudo)"},
+        {"rango": "17-33", "enemigos": "2 Sapos Gigantes y 2 Viscosidades"},
+        {"rango": "34-50", "enemigos": "1 Naga (Martillo de Batalla), 1d4 Lagartos Asesinos (Arco Corto, Daga) y 1d4 Renacuajos (Red, Espada Corta)"},
+        {"rango": "51-66", "enemigos": "1 Ettin (Martillo de Guerra) y 1d3 Orcos Brutos (Espada Larga, Escudo)"},
+        {"rango": "67-83", "enemigos": "2 Guardianes de Tumba (Martillo de Guerra) y 1Escorpion Gigante"},
+        {"rango": "84-100", "enemigos": "2 Ogros Zombis (Martillo de Guerra) y Nigromante (Bastón, He:2 Melé, 2 Distancia, 1 Apoyo+ Levantar a los Muertos)"}
+    ]
+}
