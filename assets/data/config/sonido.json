@@ -1,0 +1,15 @@
+{
+    "volumen_global": 0.8,
+    "volumen_musica": 0.7,
+    "volumen_efectos": 0.9,
+    "formatos_soportados": [
+        ".wav",
+        ".ogg",
+        ".mp3"
+    ],
+    "rutas": {
+        "musica": "../../audio/musica",
+        "efectos": "../../audio/efectos",
+        "dialogos": "../../audio/dialogos"
+    }
+}

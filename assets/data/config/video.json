@@ -1,0 +1,9 @@
+{
+    "resolucion": "1920x1080",
+    "fullscreen": false,
+    "fps_objetivo": 60,
+    "rutas": {
+        "cinematicas": "../../videos/cinematicas",
+        "tutoriales": "../../videos/tutoriales"
+    }
+}
