@@ -1,0 +1,26 @@
+{
+    "nivel_1_2": {
+        "monedas": 100,
+        "experiencia": 100,
+        "tesoros": ["1 tesoro Maravilloso"],
+        "multiplicador_monedas": 2.0
+    },
+    "nivel_3_4": {
+        "monedas": 300,
+        "experiencia": 300,
+        "tesoros": ["2 tesoros Maravillosos"],
+        "multiplicador_monedas": 2.5
+    },
+    "nivel_5_6": {
+        "monedas": 500,
+        "experiencia": 500,
+        "tesoros": ["1 tesoro Maravilloso", "1 Objeto legendario"],
+        "multiplicador_monedas": 3.0
+    },
+    "nivel_7_8": {
+        "monedas": 700,
+        "experiencia": 700,
+        "tesoros": ["2 tesoros Maravillosos", "1 Objeto legendario"],
+        "multiplicador_monedas": 3.5
+    }
+}

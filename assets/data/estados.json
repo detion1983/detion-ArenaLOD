@@ -1,0 +1,16 @@
+{
+  "efectos": {
+    "heroico": {
+      "moral": 1,
+      "cordura": 0
+    },
+    "deshonroso": {
+      "moral": 0,
+      "cordura": -1
+    }
+  },
+  "limites": {
+    "moral_max": 15,
+    "cordura_max": 10
+  }
+}

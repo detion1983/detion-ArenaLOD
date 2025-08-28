@@ -1,0 +1,48 @@
+{
+  "reacciones_publico": {
+    "apoyo": [
+      {"id": 1, "efecto": "El público te arroja una 'Poción de Furia' Para que se anime más el combate"},
+      {"id": 2, "efecto": "Te lanzan una 'Poción de Vitalidad' (recuperas 1d6 de Vitalidad)"},
+      {"id": 3, "efecto": "Un fanático te lanza un 'Poción de Fuerza' (Tira 1d3 para ver potencia)"},
+      {"id": 4, "efecto": "El público enloquece con tus golpes, obtienes un golpe crítico automático en tu próximo ataque"},
+      {"id": 5, "efecto": "Alzas el puño y te lanzan una 'Botella de Vino extraño' (restauras 1d10 de Maná)"},
+      {"id": 6, "efecto": "Una mujer te lanza una 'Flor Mágica' (restauras 1d20 de Maná)"},
+      {"id": 7, "efecto": "El público te lanza una 'Poción de Destreza' Tira 1d3 para ver potencia)"},
+      {"id": 8, "efecto": "El público te anima, +10 a todas las tiradas de HC y HD en el siguiente turno"},
+      {"id": 9, "efecto": "Un bardo toca una canción para ti, +2 a la iniciativa en tu próximo turno"},
+      {"id": 10, "efecto": "El público enloquece con tu magia, +5 la tirada de AA en el siguiente turno"},
+      {"id": 11, "efecto": "Un capellán te bendice con +2 al movimiento en el siguiente turno"},
+      {"id": 12, "efecto": "El público corea tu nombre, +10 a todas las tiradas de esquivar en el siguiente turno"},
+      {"id": 13, "efecto": "Te lanzan una botella 'Aceite para Armas'"},
+      {"id": 14, "efecto": "El público te lanza un 'Corona de laurel' (+10 a la AA en el siguiente conjuro)"},
+      {"id": 15, "efecto": "Un clérigo en las gradas te bendice, +10 a la DET en tu siguiente turno"},
+      {"id": 16, "efecto": "Un heraldo te lanza un 'Lágrima de Fénix' (restauras 1d8 de Vitalidad)"},
+      {"id": 17, "efecto": "El público te lanza una 'Poción de Escupefuego' que empiece el espectáculo!"},
+      {"id": 18, "efecto": "Te lanzan una botella de 'Elixir del Arquero'"},
+      {"id": 19, "efecto": "El público te aclama, +1 a la moral del grupo en la siguiente ronda"},
+      {"id": 20, "efecto": "Un fanático te lanza una 'Poción de la Suerte' (+1 a la suerte en la siguiente ronda)"}
+    ],
+    "desprecio": [
+      {"id": 1, "efecto": "El público te arroja basura que te ensucia, -10 a las tiradas de HC y HA en el siguiente turno"},
+      {"id": 2, "efecto": "Te lanzan piedras, recibes 1d4 de daño (Dado de cuerpo)"},
+      {"id": 3, "efecto": "Te lanzan tomates podridos que causan 1d2 de daño por ácido, (Dado de partes cuerpo)"},
+      {"id": 4, "efecto": "El público grita insultos, -1 a la Moral de Grupo"},
+      {"id": 5, "efecto": "El público silba y abuchea, -1 a la Cordura"},
+      {"id": 6, "efecto": "Un grupo de seguidores del enemigo te grita -1 a la iniciativa en el siguiente turno"},
+      {"id": 7, "efecto": "Te lanzan botellas vacías, haz una tirada de Esquiva para no recibir 1d4 de daño"},
+      {"id": 8, "efecto": "Los enemigos te abuchean, haz una tirada de Intimidación para no recibir -1 a la Moral"},
+      {"id": 9, "efecto": "El público te lanza una 'Mal de Ojo' (-1 a la suerte)"},
+      {"id": 10, "efecto": "Te lanzan una 'Red de Pescador', tienes -1 a tu movimiento"},
+      {"id": 11, "efecto": "El público se ríe de ti, pierdes 1 punto de Cordura"},
+      {"id": 12, "efecto": "Un grupo de seguidores del enemigo te lanza un 'Hechizo de Miedo', añade estado Miedo"},
+      {"id": 13, "efecto": "Te lanzan una 'Bolsa de Arena', -1 a la visión y a los ataques a distancia"},
+      {"id": 14, "efecto": "Te lanzan una 'Maldición del Ojo Malvado', -1 a la Suerte"},
+      {"id": 15, "efecto": "Te lanzan un 'Vial de corrosión' tira el dado de cuerpo y añade 1 punto de DUR a la pieza de armadura que salga"},
+      {"id": 16, "efecto": "El público te arroja una 'Bomba de Humo', -1 a la Obstruye la LDV y -20 a disparar en 8 casillas"},
+      {"id": 17, "efecto": "Te lanzan una 'Telaraña Mágica', -1 a la iniciativa y a los movimientos en tu siguiente turno"},
+      {"id": 18, "efecto": "El público se aburre con tu estilo de combate, -1 a la Moral de Grupo"},
+      {"id": 19, "efecto": "Los enemigos te abuchean, deben hacer una tirada de Intimidación para no recibir -1 a la Moral"},
+      {"id": 20, "efecto": "El público te arroja una 'Piedra de la Desgracia' (-1 a la suerte en la siguiente ronda)"}
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "corto": {
+    "descripcion": "DESCANSO CORTO (Entre Rondas)",
+    "beneficios": [
+      "Usar pociones o vendajes para recuperar Vitalidad",
+      "Recuperar 1-2 puntos de Energía",
+      "Reorganizar equipo (no cambiar armas/armaduras)",
+      "+2 Moral de Grupo y 1d3 Cordura"
+    ],
+    "efectos": {
+      "moral": 2,
+      "cordura": "1d3"
+    }
+  },
+  "largo": {
+    "descripcion": "DESCANSO LARGO (Fin del Torneo)",
+    "beneficios": [
+      "Recuperar TODA Vitalidad y Maná",
+      "Curar enfermedades/venenos",
+      "Subir de nivel si hay XP suficiente",
+      "Reparar equipo y cambiar armas/armaduras",
+      "+3 Moral de Grupo y 1d6 Cordura (rezando en capilla)"
+    ],
+    "efectos": {
+      "moral": 3,
+      "cordura": "1d6"
+    }
+  }
+}

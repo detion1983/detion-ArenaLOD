@@ -1,0 +1,20 @@
+{
+  "colores": {
+    "fondo": "#1a1a1a",
+    "texto": "#00ff00",
+    "titulo": "#DAA520",
+    "enemigo": "#FF6347",
+    "heroico": "#98FB98",
+    "deshonroso": "#FF4500"
+  },
+  "fuentes": {
+    "titulo": ["Arial", 14, "bold"],
+    "texto": ["Courier New", 11],
+    "botones": ["Arial", 10, "bold"]
+  },
+  "tamanos": {
+    "ventana": "1200x800",
+    "log_altura": 25,
+    "log_ancho": 100
+  }
+}
