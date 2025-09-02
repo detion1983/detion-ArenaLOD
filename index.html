@@ -226,52 +226,9 @@
             width: 0;
             height: 0;
         }
-        
-        /* Overlay de inicio para música */
-        #music-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        #music-overlay p {
-            color: white;
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        #start-audio {
-            padding: 15px 30px;
-            font-size: 18px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
-        #start-audio:hover {
-            background-color: #45a049;
-        }
     </style>
 </head>
 <body>
-    <!-- Overlay para activar audio -->
-    <div id="music-overlay">
-        <p>¡Bienvenido a DETION ARENA!</p>
-        <p>Haz clic para activar la música de fondo</p>
-        <button id="start-audio">Activar Música</button>
-    </div>
-
     <div id="app-container">
         <!-- Fondo -->
         <div id="background"></div>
@@ -314,15 +271,7 @@
         class ArenaApp {
             constructor() {
                 this._setupAttributes();
-                
-                // Configurar el overlay de música primero
-                this.setupMusicOverlay();
-                
-                // Inicializar después de que el usuario interactúe
-                document.getElementById('start-audio').addEventListener('click', () => {
-                    this.init();
-                    document.getElementById('music-overlay').style.display = 'none';
-                });
+                this.init();
             }
             
             _setupAttributes() {
@@ -355,9 +304,7 @@
                 
                 // Control de música
                 this.musica_activada = true;
-                this.audioContext = null;
                 this.audioElement = null;
-                this.audioGain = null;
                 
                 // Valores de configuración
                 this.nivel_valor = 1;
@@ -373,19 +320,13 @@
                 this.scale_factor = 1.0;
             }
             
-            setupMusicOverlay() {
-                // Esta función ya está implementada con el overlay HTML
-                // Solo necesitamos asegurarnos de que esté visible al inicio
-                document.getElementById('music-overlay').style.display = 'flex';
-            }
-            
             async init() {
                 await this.cargarConfiguraciones();
                 this.inicializarUI();
                 this.inicializarEstados();
-                this.inicializarMusica();
                 this.mostrarMensajeBienvenida();
                 this.iniciarEfectoParpadeo();
+                this.inicializarMusica();
                 this.configurarEventos();
             }
             
@@ -499,8 +440,7 @@
             
             cargarImagenFondo() {
                 const background = document.getElementById('background');
-                // Usar una imagen de fondo por defecto si no existe la específica
-                background.style.backgroundImage = `url('${this.IMAGES_DIR}/fondo.png'), url('https://placehold.co/1920x1080/2D2D2D/FFFFFF/png?text=DETION+ARENA')`;
+                background.style.backgroundImage = `url('${this.IMAGES_DIR}/fondo.png')`;
             }
             
             cargarImagenesBotones() {
@@ -524,50 +464,35 @@
             cargarImagenBoton(elementId, imageName) {
                 const element = document.getElementById(elementId);
                 if (element) {
-                    // Usar imagen por defecto si no existe la específica
-                    element.style.backgroundImage = `url('${this.IMAGES_DIR}/${imageName}'), url('https://placehold.co/80x80/555555/FFFFFF/png?text=${imageName.replace('.png', '')}')`;
+                    element.style.backgroundImage = `url('${this.IMAGES_DIR}/${imageName}')`;
                 }
             }
             
             inicializarMusica() {
                 try {
-                    // Crear contexto de audio
-                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    
-                    // Crear elemento de audio
-                    this.audioElement = new Audio();
-                    
-                    // Configurar para loop
+                    this.audioElement = new Audio(`${this.AUDIO_DIR}/musica_fondo.mp3`);
                     this.audioElement.loop = true;
+                    this.audioElement.volume = 0.7;
                     
-                    // Crear nodo de ganancia para control de volumen
-                    this.audioGain = this.audioContext.createGain();
-                    this.audioGain.gain.value = 0.7; // 70% de volumen
+                    // Intentar reproducir (necesita interacción del usuario en algunos navegadores)
+                    const tryPlay = () => {
+                        if (this.musica_activada) {
+                            this.audioElement.play().catch(e => {
+                                console.log("La reproducción automática fue prevenida:", e);
+                            });
+                        }
+                    };
                     
-                    // Conectar la fuente de audio al nodo de ganancia y luego a los altavoces
-                    const source = this.audioContext.createMediaElementSource(this.audioElement);
-                    source.connect(this.audioGain);
-                    this.audioGain.connect(this.audioContext.destination);
+                    // Intentar reproducir después de una interacción del usuario
+                    document.addEventListener('click', () => {
+                        if (this.musica_activada && this.audioElement.paused) {
+                            tryPlay();
+                        }
+                    }, { once: true });
                     
-                    // Cargar música
-                    this.audioElement.src = `${this.AUDIO_DIR}/musica_fondo.mp3`;
-                    
-                    // Intentar reproducir (ya tenemos interacción del usuario por el overlay)
-                    if (this.musica_activada) {
-                        this.audioElement.play().catch(e => {
-                            console.error("Error al reproducir música:", e);
-                            // Si falla, mostrar de nuevo el overlay
-                            document.getElementById('music-overlay').style.display = 'flex';
-                            document.getElementById('music-overlay').querySelector('p').textContent = 
-                                "Error al cargar la música. Haz clic para reintentar.";
-                        });
-                    }
+                    tryPlay();
                 } catch (e) {
                     console.error("Error inicializando música:", e);
-                    // Mostrar overlay de error
-                    document.getElementById('music-overlay').style.display = 'flex';
-                    document.getElementById('music-overlay').querySelector('p').textContent = 
-                        "Error al inicializar el audio. Haz clic para reintentar.";
                 }
             }
             
@@ -578,7 +503,7 @@
                 
                 if (this.audioElement) {
                     this.audioElement.play().catch(e => {
-                        console.error("Error al reanudar música:", e);
+                        console.log("Error al reanudar música:", e);
                     });
                 }
             }
@@ -795,7 +720,7 @@
                 
                 if (this.audioElement) {
                     this.audioElement.play().catch(e => {
-                        console.error("Error al reanudar música:", e);
+                        console.log("Error al reanudar música:", e);
                     });
                 }
                 
