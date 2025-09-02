@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DETION ARENA: LEAGUE OF DUNGEONEERS</title>
+    <style>
+        /* Estilos generales */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #arena-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            max-height: 800px;
+            background-image: url('assets/imagenes/fondo.png');
+            background-size: cover;
+            background-position: center;
+            border: 2px solid #8B4513;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(139, 69, 19, 0.7);
+        }
+        
+        /* Paneles de configuración */
+        .config-panel {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: rgba(45, 45, 45, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #8B4513;
+        }
+        
+        #nivel-panel {
+            left: 5%;
+            top: 5%;
+        }
+        
+        #apuesta-panel {
+            right: 5%;
+            top: 5%;
+        }
+        
+        .config-label {
+            color: black;
+            font-weight: bold;
+            font-size: 24px;
+            min-width: 60px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        .btn-config {
+            width: 50px;
+            height: 50px;
+            background-color: #2D2D2D;
+            border: 2px solid #8B4513;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .btn-config:hover {
+            background-color: #3D3D3D;
+            transform: scale(1.05);
+        }
+        
+        .btn-config img {
+            max-width: 80%;
+            max-height: 80%;
+        }
+        
+        /* Log de eventos */
+        #event-log-container {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 200px;
+            background-color: rgba(255, 255, 255, 0.85);
+            border: 2px solid #8B4513;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        #event-log {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            overflow-y: auto;
+            color: #000;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        /* Log de recompensas */
+        #reward-log-container {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 150px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid #006400;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        #reward-log {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            overflow-y: auto;
+            color: #000;
+            font-size: 12px;
+            line-height: 1.4;
+            text-align: center;
+        }
+        
+        /* Botones de control */
+        #control-buttons {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+        
+        .control-btn {
+            width: 70px;
+            height: 70px;
+            background-color: #2D2D2D;
+            border: 2px solid #8B4513;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            background-color: #3D3D3D;
+            transform: scale(1.05);
+        }
+        
+        .control-btn:disabled {
+            background-color: #555555;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+        
+        .control-btn img {
+            max-width: 80%;
+            max-height: 80%;
+        }
+        
+        /* Estilos para mensajes */
+        .log-titulo {
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 5px;
+            color: #000;
+        }
+        
+        .log-enemigo {
+            color: #8B0000;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .log-heroico {
+            color: #006400;
+            font-weight: bold;
+        }
+        
+        .log-deshonroso {
+            color: #8B0000;
+            font-weight: bold;
+        }
+        
+        .log-efecto {
+            color: #000;
+            font-style: italic;
+        }
+        
+        .log-publico {
+            color: #000;
+            text-align: center;
+        }
+        
+        .log-speaker {
+            color: #8B4513;
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+        }
+        
+        .log-apuesta {
+            color: #006400;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .config-panel {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            #control-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 90%;
+            }
+            
+            .control-btn {
+                width: 60px;
+                height: 60px;
+            }
+            
+            #event-log-container {
+                width: 90%;
+                height: 180px;
+            }
+            
+            #reward-log-container {
+                width: 70%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="arena-container">
+        <!-- Panel de configuración de nivel -->
+        <div class="config-panel" id="nivel-panel">
+            <button class="btn-config" id="btn-nivel-down">
+                <img src="assets/imagenes/btn_nivel_down.png" alt="Bajar nivel">
+            </button>
+            <div class="config-label" id="nivel-label">1</div>
+            <button class="btn-config" id="btn-nivel-up">
+                <img src="assets/imagenes/btn_nivel_up.png" alt="Subir nivel">
+            </button>
+        </div>
+        
+        <!-- Panel de configuración de apuesta -->
+        <div class="config-panel" id="apuesta-panel">
+            <button class="btn-config" id="btn-apuesta-down">
+                <img src="assets/imagenes/btn_apuesta_down.png" alt="Bajar apuesta">
+            </button>
+            <div class="config-label" id="apuesta-label">0</div>
+            <button class="btn-config" id="btn-apuesta-up">
+                <img src="assets/imagenes/btn_apuesta_up.png" alt="Subir apuesta">
+            </button>
+        </div>
+        
+        <!-- Log de eventos -->
+        <div id="event-log-container">
+            <div id="event-log"></div>
+        </div>
+        
+        <!-- Log de recompensas -->
+        <div id="reward-log-container">
+            <div id="reward-log"></div>
+        </div>
+        
+        <!-- Botones de control -->
+        <div id="control-buttons">
+            <button class="control-btn" id="btn-iniciar">
+                <img src="assets/imagenes/btn_iniciar.png" alt="Iniciar">
+            </button>
+            <button class="control-btn" id="btn-ronda" disabled>
+                <img src="assets/imagenes/btn_ronda.png" alt="Siguiente ronda">
+            </button>
+            <button class="control-btn" id="btn-heroico" disabled>
+                <img src="assets/imagenes/btn_heroico.png" alt="Acción heroica">
+            </button>
+            <button class="control-btn" id="btn-deshonroso" disabled>
+                <img src="assets/imagenes/btn_deshonroso.png" alt="Acción deshonrosa">
+            </button>
+            <button class="control-btn" id="btn-musica">
+                <img src="assets/imagenes/btn_con_musica.png" alt="Música">
+            </button>
+            <button class="control-btn" id="btn-reiniciar">
+                <img src="assets/imagenes/btn_reiniciar.png" alt="Reiniciar">
+            </button>
+            <button class="control-btn" id="btn-reglas">
+                <img src="assets/imagenes/btn_reglas.png" alt="Reglas">
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Clase principal de la aplicación
+        class ArenaWebApp {
+            constructor() {
+                this.configLoaded = false;
+                this.nivelValor = 1;
+                this.apuestaValor = 0;
+                this.rondaActual = 1;
+                this.accionesHeroicas = 0;
+                this.accionesDeshonrosas = 0;
+                this.moralGrupo = 10;
+                this.cordura = 10;
+                this.bonifCritico = false;
+                this.apuestaActiva = false;
+                this.apuestaMonedas = 0;
+                this.rewardLogVisible = false;
+                this.musicaActivada = true;
+                this.heroesNivel = null;
+                this.encuentroActual = null;
+                this.encuentros = {};
+                
+                this.configuraciones = {};
+                
+                this.init();
+            }
+            
+            async init() {
+                await this.cargarConfiguraciones();
+                this.setupEventListeners();
+                this.mostrarMensajeBienvenida();
+                this.configLoaded = true;
+            }
+            
+            async cargarConfiguraciones() {
+                try {
+                    // Cargar todos los archivos de configuración
+                    const configFiles = [
+                        'assets/data/ui_config.json',
+                        'assets/data/estados.json',
+                        'assets/data/descansos.json',
+                        'assets/data/recompensas.json',
+                        'assets/data/comportamiento.json'
+                    ];
+                    
+                    const configKeys = ['ui_config', 'estados_config', 'descansos', 'recompensas', 'comportamiento'];
+                    
+                    for (let i = 0; i < configFiles.length; i++) {
+                        const response = await fetch(configFiles[i]);
+                        this.configuraciones[configKeys[i]] = await response.json();
+                    }
+                    
+                    // Cargar encuentros
+                    const encuentrosFiles = [
+                        'assets/data/encuentros/nivel_1_2.json',
+                        'assets/data/encuentros/nivel_3_4.json',
+                        'assets/data/encuentros/nivel_5_6.json',
+                        'assets/data/encuentros/nivel_7_8.json'
+                    ];
+                    
+                    const encuentrosKeys = ['nivel_1_2', 'nivel_3_4', 'nivel_5_6', 'nivel_7_8'];
+                    
+                    this.configuraciones.encuentros = {};
+                    for (let i = 0; i < encuentrosFiles.length; i++) {
+                        const response = await fetch(encuentrosFiles[i]);
+                        this.configuraciones.encuentros[encuentrosKeys[i]] = await response.json();
+                    }
+                    
+                    console.log("Configuraciones cargadas correctamente");
+                } catch (error) {
+                    console.error("Error cargando configuraciones:", error);
+                    this.mostrarMensajeLog("Error cargando configuraciones. Verifica la consola para más detalles.", "error");
+                }
+            }
+            
+            setupEventListeners() {
+                // Botones de configuración
+                document.getElementById('btn-nivel-up').addEventListener('click', () => this.incrementarNivel());
+                document.getElementById('btn-nivel-down').addEventListener('click', () => this.decrementarNivel());
+                document.getElementById('btn-apuesta-up').addEventListener('click', () => this.incrementarApuesta());
+                document.getElementById('btn-apuesta-down').addEventListener('click', () => this.decrementarApuesta());
+                
+                // Botones de control
+                document.getElementById('btn-iniciar').addEventListener('click', () => this.iniciarArena());
+                document.getElementById('btn-ronda').addEventListener('click', () => this.siguienteRonda());
+                document.getElementById('btn-heroico').addEventListener('click', () => this.evaluarAccion('heroica'));
+                document.getElementById('btn-deshonroso').addEventListener('click', () => this.evaluarAccion('deshonrosa'));
+                document.getElementById('btn-musica').addEventListener('click', () => this.toggleMusica());
+                document.getElementById('btn-reiniciar').addEventListener('click', () => this.reiniciarArena());
+                document.getElementById('btn-reglas').addEventListener('click', () => this.mostrarReglas());
+            }
+            
+            incrementarNivel() {
+                if (this.nivelValor < 10) {
+                    this.nivelValor++;
+                    document.getElementById('nivel-label').textContent = this.nivelValor;
+                }
+            }
+            
+            decrementarNivel() {
+                if (this.nivelValor > 1) {
+                    this.nivelValor--;
+                    document.getElementById('nivel-label').textContent = this.nivelValor;
+                }
+            }
+            
+            incrementarApuesta() {
+                if (this.apuestaValor < 500) {
+                    this.apuestaValor = Math.min(500, this.apuestaValor + 10);
+                    document.getElementById('apuesta-label').textContent = this.apuestaValor;
+                }
+            }
+            
+            decrementarApuesta() {
+                if (this.apuestaValor > 0) {
+                    this.apuestaValor = Math.max(0, this.apuestaValor - 10);
+                    document.getElementById('apuesta-label').textContent = this.apuestaValor;
+                }
+            }
+            
+            toggleMusica() {
+                this.musicaActivada = !this.musicaActivada;
+                const btnMusica = document.getElementById('btn-musica');
+                
+                if (this.musicaActivada) {
+                    btnMusica.innerHTML = '<img src="assets/imagenes/btn_con_musica.png" alt="Música">';
+                    this.mostrarMensajeLog("Música activada", "efecto");
+                    // Aquí iría el código para activar la música
+                } else {
+                    btnMusica.innerHTML = '<img src="assets/imagenes/btn_sin_musica.png" alt="Música">';
+                    this.mostrarMensajeLog("Música desactivada", "efecto");
+                    // Aquí iría el código para desactivar la música
+                }
+            }
+            
+            mostrarMensajeLog(mensaje, tipo = "normal") {
+                const eventLog = document.getElementById('event-log');
+                const messageDiv = document.createElement('div');
+                
+                // Aplicar clases según el tipo de mensaje
+                switch(tipo) {
+                    case "titulo":
+                        messageDiv.className = "log-titulo";
+                        break;
+                    case "enemigo":
+                        messageDiv.className = "log-enemigo";
+                        break;
+                    case "heroico":
+                        messageDiv.className = "log-heroico";
+                        break;
+                    case "deshonroso":
+                        messageDiv.className = "log-deshonroso";
+                        break;
+                    case "efecto":
+                        messageDiv.className = "log-efecto";
+                        break;
+                    case "publico":
+                        messageDiv.className = "log-publico";
+                        break;
+                    case "speaker":
+                        messageDiv.className = "log-speaker";
+                        break;
+                    case "apuesta":
+                        messageDiv.className = "log-apuesta";
+                        break;
+                    default:
+                        messageDiv.style.textAlign = "center";
+                }
+                
+                messageDiv.textContent = mensaje;
+                eventLog.appendChild(messageDiv);
+                
+                // Scroll al final
+                eventLog.scrollTop = eventLog.scrollHeight;
+            }
+            
+            mostrarMensajeBienvenida() {
+                this.mostrarMensajeLog("\n=== BIENVENIDO A LA ARENA DE LORAINIA ===", "titulo");
+                this.mostrarMensajeLog("¡Atención, ciudadanos de Lorainia! Aventureros de las Tierras Antiguas,\n" +
+                                     "estáis bajo la atenta mirada de los dioses y del gran rey Logan III. Aquí hallaréis muerte o gloria.", "publico");
+                this.mostrarMensajeLog("Reglamento escrito por José Manuel Arena v1.3 y aplicacion por Omar Nieto (DETION)", "enemigo");
+            }
+            
+            iniciarArena() {
+                const nivel = this.nivelValor;
+                const apuesta = this.apuestaValor;
+                
+                try {
+                    if (apuesta < 0 || apuesta > 500) {
+                        throw new Error("La apuesta debe estar entre 0 y 500");
+                    }
+                    
+                    // Determinar nivel
+                    let nivelClave = "";
+                    if (nivel >= 1 && nivel <= 2) {
+                        nivelClave = "nivel_1_2";
+                    } else if (nivel >= 3 && nivel <= 4) {
+                        nivelClave = "nivel_3_4";
+                    } else if (nivel >= 5 && nivel <= 6) {
+                        nivelClave = "nivel_5_6";
+                    } else if (nivel >= 7 && nivel <= 10) {
+                        nivelClave = "nivel_7_8";
+                    } else {
+                        throw new Error("Nivel debe estar entre 1 y 10");
+                    }
+                    
+                    this.heroesNivel = nivelClave;
+                    this.encuentros = this.configuraciones.encuentros[nivelClave];
+                    this.apuestaMonedas = apuesta;
+                    this.apuestaActiva = apuesta > 0;
+                    
+                    // Obtener el multiplicador de recompensas
+                    const recompensa = this.configuraciones.recompensas[nivelClave] || {};
+                    const multiplicador = recompensa.multiplicador_monedas || 1.0;
+                    
+                    // Mensaje del speaker sobre la apuesta
+                    this.mostrarMensajeLog("\n«¡Atención, nobles espectadores!»", "speaker");
+                    
+                    if (this.apuestaActiva) {
+                        const gananciaPotencial = parseInt(this.apuestaMonedas * multiplicador);
+                        this.mostrarMensajeLog(`«¡Nuestros valientes héroes han apostado ${this.apuestaMonedas} monedas!»`, "speaker");
+                        this.mostrarMensajeLog(`«Si logran la victoria, obtendrán ${gananciaPotencial} monedas adicionales!»`, "speaker");
+                    } else {
+                        this.mostrarMensajeLog("«¡Jajaja nuestros héroes no han apostado o eso quiere decir que solo les queda la vida!»", "speaker");
+                        this.mostrarMensajeLog("«¡Una muestra de valentía o tal vez de locura!»", "speaker");
+                    }
+                    
+                    this.mostrarMensajeLog("«¡Que comience el espectáculo!»", "speaker");
+                    
+                    // Habilitar botones apropiados
+                    document.getElementById('btn-iniciar').disabled = true;
+                    document.getElementById('btn-ronda').disabled = false;
+                    document.getElementById('btn-heroico').disabled = false;
+                    document.getElementById('btn-deshonroso').disabled = false;
+                    
+                    this.mostrarMensajeLog(`\n=== HÉROES DE NIVEL ${nivelClave.replace('_', '-')} ===`, "titulo");
+                    
+                    if (this.apuestaActiva) {
+                        this.mostrarMensajeLog(`¡Has apostado ${this.apuestaMonedas} monedas!`, "apuesta");
+                    } else {
+                        this.mostrarMensajeLog("¡No has realizado ninguna apuesta!", "apuesta");
+                    }
+                    
+                    this.ejecutarRonda(1);
+                    
+                } catch (error) {
+                    this.mostrarMensajeLog(`Error: ${error.message}`, "error");
+                    document.getElementById('btn-iniciar').disabled = false;
+                }
+            }
+            
+            ejecutarRonda(ronda) {
+                this.rondaActual = ronda;
+                const tipoRonda = ronda === 1 ? "Calentamiento" : ronda === 2 ? "Desafío" : "Jefe Final";
+                
+                const encuentrosRonda = this.encuentros[`ronda_${ronda}`];
+                const tirada = Math.floor(Math.random() * 100) + 1;
+                
+                for (const encuentro of encuentrosRonda) {
+                    const [rangoMin, rangoMax] = encuentro.rango.split('-').map(Number);
+                    if (tirada >= rangoMin && tirada <= rangoMax) {
+                        this.encuentroActual = encuentro.enemigos;
+                        break;
+                    }
+                }
+                
+                // Si no se encuentra encuentro, usar el último por defecto
+                if (!this.encuentroActual) {
+                    this.encuentroActual = encuentrosRonda[encuentrosRonda.length - 1].enemigos;
+                }
+                
+                this.mostrarMensajeLog(`\n=== RONDA ${ronda}: ${tipoRonda.toUpperCase()} ===`, "ronda");
+                this.mostrarMensajeLog(`Tirada: ${tirada}`, "enemigo");
+                this.mostrarEnemigos();
+                this.bonifCritico = false;
+            }
+            
+            mostrarEnemigos() {
+                const enemigos = this.encuentroActual.split(" y ");
+                this.mostrarMensajeLog("\nENEMIGOS EN LA ARENA:", "enemigo");
+                
+                // Diccionario de iconos para tipos de enemigos
+                const iconosEnemigos = {
+                    "Hechicero": "🧙",
+                    "Escudo": "🛡️", 
+                    "Espada": "⚔️",
+                    "Hacha": "⚔️"
+                };
+                
+                for (const enemigo of enemigos) {
+                    let icono = "🐺"; // Por defecto
+                    for (const [tipo, emoji] of Object.entries(iconosEnemigos)) {
+                        if (enemigo.includes(tipo)) {
+                            icono = emoji;
+                            break;
+                        }
+                    }
+                    
+                    this.mostrarMensajeLog(`${icono} ${enemigo.trim()}`, "enemigo");
+                }
+            }
+            
+            evaluarAccion(tipoAccion) {
+                if (tipoAccion === "heroica") {
+                    this.accionesHeroicas++;
+                    this.mostrarMensajeLog("\nLos héroes realizan una acción heroica:", "heroico");
+                    this.actualizarEstados("heroica");
+                } else {
+                    this.accionesDeshonrosas++;
+                    this.mostrarMensajeLog("\nLos héroes realizan una acción deshonrosa:", "deshonroso");
+                    this.actualizarEstados("deshonrosa");
+                }
+                
+                const tipoReaccion = tipoAccion === "heroica" ? "apoyo" : "desprecio";
+                const reacciones = this.configuraciones.comportamiento.reacciones_publico[tipoReaccion];
+                const reaccion = reacciones[Math.floor(Math.random() * reacciones.length)];
+                
+                this.mostrarMensajeLog(`» ${reaccion.efecto}`, reaccion.id > 15 ? "critical" : "efecto");
+                this.aplicarEfectoPublico(reaccion.id, tipoAccion === "heroica");
+                
+                document.getElementById('btn-heroico').disabled = true;
+                document.getElementById('btn-deshonroso').disabled = true;
+            }
+            
+            aplicarEfectoPublico(idEfecto, esApoyo) {
+                if (esApoyo) {
+                    if (idEfecto === 4) {
+                        this.bonifCritico = true;
+                    } else if (idEfecto === 19) {
+                        this.moralGrupo = Math.min(this.configuraciones.estados_config.limites.moral_max, this.moralGrupo + 1);
+                    }
+                } else {
+                    if (idEfecto === 4) {
+                        this.moralGrupo = Math.max(0, this.moralGrupo - 1);
+                    } else if (idEfecto === 5) {
+                        this.cordura = Math.max(0, this.cordura - 1);
+                    }
+                }
+                
+                this.actualizarEstados();
+            }
+            
+            actualizarEstados(accion = null) {
+                if (accion === "heroica") {
+                    this.moralGrupo = Math.min(
+                        this.configuraciones.estados_config.limites.moral_max,
+                        this.moralGrupo + this.configuraciones.estados_config.efectos.heroico.moral
+                    );
+                } else if (accion === "deshonrosa") {
+                    this.cordura = Math.max(
+                        0,
+                        this.cordura + this.configuraciones.estados_config.efectos.deshonroso.cordura
+                    );
+                }
+                
+                this.mostrarMensajeLog(
+                    `\nMoral del Grupo: ${this.moralGrupo}/${this.configuraciones.estados_config.limites.moral_max} | ` +
+                    `Cordura: ${this.cordura}/${this.configuraciones.estados_config.limites.cordura_max}`,
+                    "efecto"
+                );
+            }
+            
+            mostrarDescanso() {
+                const descanso = this.configuraciones.descansos.corto;
+                
+                this.mostrarMensajeLog(`\n=== ${descanso.descripcion} ===`, "titulo");
+                for (const beneficio of descanso.beneficios) {
+                    this.mostrarMensajeLog(beneficio, "lista");
+                }
+                
+                this.moralGrupo = Math.min(
+                    this.configuraciones.estados_config.limites.moral_max,
+                    this.moralGrupo + descanso.efectos.moral
+                );
+                
+                // Parsear y aplicar efecto de cordura
+                let corduraSumada = 0;
+                if (descanso.efectos.cordura.includes('d')) {
+                    const dadoCordura = parseInt(descanso.efectos.cordura.split('d')[1]);
+                    corduraSumada = Math.floor(Math.random() * dadoCordura) + 1;
+                } else {
+                    corduraSumada = parseInt(descanso.efectos.cordura);
+                }
+                
+                this.cordura = Math.min(
+                    this.configuraciones.estados_config.limites.cordura_max,
+                    this.cordura + corduraSumada
+                );
+                
+                this.actualizarEstados();
+            }
+            
+            siguienteRonda() {
+                if (this.rondaActual < 3) {
+                    // Mostrar descanso después de la ronda actual
+                    if (this.rondaActual > 0) {
+                        this.mostrarDescanso();
+                    }
+                    
+                    this.rondaActual++;
+                    this.ejecutarRonda(this.rondaActual);
+                    document.getElementById('btn-heroico').disabled = false;
+                    document.getElementById('btn-deshonroso').disabled = false;
+                } else {
+                    this.mostrarRecompensas();
+                    document.getElementById('btn-heroico').disabled = true;
+                    document.getElementById('btn-deshonroso').disabled = true;
+                    document.getElementById('btn-ronda').disabled = true;
+                }
+            }
+            
+            mostrarRecompensas() {
+                const nivelConfig = {
+                    "nivel_1_2": "nivel_1_2",
+                    "nivel_3_4": "nivel_3_4", 
+                    "nivel_5_6": "nivel_5_6",
+                    "nivel_7_8": "nivel_7_8"
+                };
+                
+                const claveRecompensa = nivelConfig[this.heroesNivel] || "nivel_1_2";
+                const recompensa = this.configuraciones.recompensas[claveRecompensa] || {};
+                const multiplicador = recompensa.multiplicador_monedas || 1.0;
+                const monedasBase = recompensa.monedas || 0;
+                
+                // Calcular monedas ganadas
+                let monedasGanadas = monedasBase;
+                
+                // Solo aplicar multiplicador si el usuario apostó algo
+                if (this.apuestaActiva && this.apuestaMonedas > 0) {
+                    const gananciaApuesta = parseInt(this.apuestaMonedas * multiplicador);
+                    monedasGanadas += gananciaApuesta;
+                }
+                
+                const experienciaGanada = recompensa.experiencia || 0;
+                const tesorosGanados = recompensa.tesoros || [];
+                
+                // Mostrar en el log de recompensas
+                const rewardLog = document.getElementById('reward-log');
+                const rewardLogContainer = document.getElementById('reward-log-container');
+                
+                rewardLog.innerHTML = `
+                    <div class="log-titulo">=== VICTORIA ===</div>
+                    <div>» ${monedasGanadas} monedas de oro</div>
+                    ${this.apuestaActiva && this.apuestaMonedas > 0 ? `
+                        <div>   - Base: ${monedasBase} monedas</div>
+                        <div>   - Apuesta: +${parseInt(this.apuestaMonedas * multiplicador)} monedas</div>
+                    ` : ''}
+                    <div>» ${experienciaGanada} puntos de experiencia</div>
+                    ${tesorosGanados.map(tesoro => `<div>» ${tesoro}</div>`).join('')}
+                `;
+                
+                rewardLogContainer.style.display = 'block';
+            }
+            
+            reiniciarArena() {
+                document.getElementById('event-log').innerHTML = '';
+                document.getElementById('reward-log').innerHTML = '';
+                document.getElementById('reward-log-container').style.display = 'none';
+                
+                this.nivelValor = 1;
+                this.apuestaValor = 0;
+                this.rondaActual = 1;
+                this.accionesHeroicas = 0;
+                this.accionesDeshonrosas = 0;
+                this.moralGrupo = 10;
+                this.cordura = 10;
+                this.bonifCritico = false;
+                this.apuestaActiva = false;
+                this.apuestaMonedas = 0;
+                
+                document.getElementById('nivel-label').textContent = '1';
+                document.getElementById('apuesta-label').textContent = '0';
+                document.getElementById('btn-iniciar').disabled = false;
+                document.getElementById('btn-ronda').disabled = true;
+                document.getElementById('btn-heroico').disabled = true;
+                document.getElementById('btn-deshonroso').disabled = true;
+                
+                // Restaurar botón de música
+                document.getElementById('btn-musica').innerHTML = '<img src="assets/imagenes/btn_con_musica.png" alt="Música">';
+                this.musicaActivada = true;
+                
+                this.mostrarMensajeBienvenida();
+                this.mostrarMensajeLog("\n=== ARENA REINICIADA ===", "titulo");
+            }
+            
+            mostrarReglas() {
+                this.mostrarMensajeLog("\nMostrando reglas de la arena...", "publico");
+                // Aquí podrías abrir un modal o redirigir a un PDF
+                window.open('assets/data/Arena_V1.3.pdf', '_blank');
+            }
+        }
+
+        // Inicializar la aplicación cuando el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new ArenaWebApp();
+            window.arenaApp = app; // Hacer accesible globalmente para depuración
+        });
+    </script>
+</body>
+</html>
