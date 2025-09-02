@@ -1,3 +1,5 @@
+[file name]: index.html
+[file content begin]
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -53,23 +55,10 @@
             gap: 10px;
         }
         
-        #nivel-panel {
-            top: 43%;
-            left: 10.6%;
-            transform: translate(-50%, -50%);
-        }
-        
-        #apuesta-panel {
-            top: 43%;
-            right: 15.4%;
-            transform: translate(50%, -50%);
-        }
-        
         .config-label {
             background-color: transparent;
             color: black;
             font-weight: bold;
-            font-size: 50px;
             min-width: 80px;
             text-align: center;
         }
@@ -78,8 +67,6 @@
         .btn {
             background-color: #2D2D2D;
             border: none;
-            width: 80px;
-            height: 80px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -101,7 +88,6 @@
         /* Botones principales */
         #main-buttons {
             position: absolute;
-            bottom: 6%;
             display: flex;
             gap: 12%;
             width: 70%;
@@ -111,15 +97,9 @@
         /* Log de eventos */
         #event-log {
             position: absolute;
-            top: 41%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 1000px;
-            height: 300px;
             background-color: transparent;
             color: black;
             border: none;
-            font-size: 14px;
             text-align: center;
             overflow: auto;
             padding: 10px;
@@ -128,15 +108,9 @@
         /* Log de recompensas */
         #reward-log {
             position: absolute;
-            top: 73%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 450px;
-            height: 250px;
             background-color: transparent;
             color: black;
             border: none;
-            font-size: 10px;
             text-align: center;
             overflow: auto;
             padding: 10px;
@@ -146,76 +120,63 @@
         /* Estilos de texto para diferentes tipos de mensajes */
         .log-titulo {
             color: #000000;
-            font-size: 16px;
             font-weight: bold;
         }
         
         .log-recompensa {
             color: #006400;
-            font-size: 13px;
         }
         
         .log-enemigo {
             color: #8B0000;
-            font-size: 16px;
             font-weight: bold;
         }
         
         .log-lista {
             color: #000000;
-            font-size: 12px;
         }
         
         .log-ronda {
             color: #000000;
-            font-size: 14px;
             font-weight: bold;
         }
         
         .log-heroico {
             color: #006400;
-            font-size: 13px;
             font-weight: bold;
         }
         
         .log-deshonroso {
             color: #8B0000;
-            font-size: 13px;
             font-weight: bold;
         }
         
         .log-publico {
             color: #000000;
-            font-size: 13px;
             font-style: italic;
         }
         
         .log-efecto {
             color: #000000;
-            font-size: 13px;
         }
         
         .log-critical {
             color: #8B0000;
-            font-size: 13px;
             font-weight: bold;
             animation: blink 0.5s infinite;
         }
         
         .log-apuesta {
             color: #006400;
-            font-size: 13px;
             font-weight: bold;
         }
         
         .log-center {
             color: #000000;
-            font-size: 14px;
         }
         
         .log-speaker {
             color: #8B4513;
-            font-size: 14px;
             font-weight: bold;
             font-style: italic;
         }
@@ -253,14 +214,12 @@
         
         #music-overlay p {
             color: white;
-            font-size: 24px;
             margin-bottom: 20px;
             text-align: center;
         }
         
         #start-audio {
             padding: 15px 30px;
-            font-size: 18px;
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -376,7 +335,9 @@
                 this.blink_state = false;
                 this.blink_interval = null;
                 
-                // Factores de escala
+                // Factores de escala (basado en 1920x1080)
+                this.base_width = 1920;
+                this.base_height = 1080;
                 this.width_scale = 1.0;
                 this.height_scale = 1.0;
                 this.scale_factor = 1.0;
@@ -396,6 +357,103 @@
                 this.mostrarMensajeBienvenida();
                 this.iniciarEfectoParpadeo();
                 this.configurarEventos();
+                
+                // Configurar evento de redimensionamiento
+                window.addEventListener('resize', () => {
+                    this.calcularFactoresEscala();
+                    this.aplicarEscaladoCompleto();
+                });
+                
+                // Calcular factores iniciales
+                this.calcularFactoresEscala();
+                this.aplicarEscaladoCompleto();
+            }
+            
+            calcularFactoresEscala() {
+                this.width_scale = window.innerWidth / this.base_width;
+                this.height_scale = window.innerHeight / this.base_height;
+                this.scale_factor = Math.min(this.width_scale, this.height_scale);
+            }
+            
+            aplicarEscaladoCompleto() {
+                // Ajustar tamaño de botones
+                const btnSize = Math.max(40, Math.min(80, 80 * this.scale_factor));
+                document.querySelectorAll('.btn').forEach(btn => {
+                    btn.style.width = `${btnSize}px`;
+                    btn.style.height = `${btnSize}px`;
+                });
+                
+                // Ajustar tamaño de etiquetas
+                const labelFontSize = Math.max(30, Math.min(50, 50 * this.scale_factor));
+                document.querySelectorAll('.config-label').forEach(label => {
+                    label.style.fontSize = `${labelFontSize}px`;
+                    label.style.minWidth = `${btnSize}px`;
+                });
+                
+                // Ajustar log de eventos
+                const eventLog = document.getElementById('event-log');
+                if (eventLog) {
+                    const logWidth = Math.max(600, Math.min(1000, 1000 * this.scale_factor));
+                    const logHeight = Math.max(180, Math.min(300, 300 * this.scale_factor));
+                    const fontSize = Math.max(10, Math.min(14, 14 * this.scale_factor));
+                    
+                    eventLog.style.width = `${logWidth}px`;
+                    eventLog.style.height = `${logHeight}px`;
+                    eventLog.style.fontSize = `${fontSize}px`;
+                }
+                
+                // Ajustar log de recompensas
+                const rewardLog = document.getElementById('reward-log');
+                if (rewardLog) {
+                    const rewardWidth = Math.max(270, Math.min(450, 450 * this.scale_factor));
+                    const rewardHeight = Math.max(150, Math.min(250, 250 * this.scale_factor));
+                    const fontSize = Math.max(8, Math.min(10, 10 * this.scale_factor));
+                    
+                    rewardLog.style.width = `${rewardWidth}px`;
+                    rewardLog.style.height = `${rewardHeight}px`;
+                    rewardLog.style.fontSize = `${fontSize}px`;
+                }
+                
+                // Reposicionar elementos
+                this.reposicionarElementos();
+            }
+            
+            reposicionarElementos() {
+                // Definir posiciones relativas (proporciones de 0 a 1)
+                const positions = {
+                    'nivel-panel': { x: 0.106, y: 0.43 },
+                    'apuesta-panel': { x: 0.846, y: 0.43 },
+                    'event-log': { x: 0.5, y: 0.41 },
+                    'reward-log': { x: 0.5, y: 0.73 },
+                    'main-buttons': { x: 0.5, y: 0.94 }
+                };
+                
+                // Posicionar elementos
+                for (const [id, pos] of Object.entries(positions)) {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        if (id === 'main-buttons') {
+                            // Centrar el contenedor de botones
+                            element.style.bottom = `${window.innerHeight * (1 - pos.y)}px`;
+                            element.style.left = '50%';
+                            element.style.transform = 'translateX(-50%)';
+                        } else {
+                            // Posicionar elementos absolutos
+                            const x = window.innerWidth * pos.x;
+                            const y = window.innerHeight * pos.y;
+                            
+                            if (id === 'event-log' || id === 'reward-log') {
+                                // Centrar logs
+                                element.style.left = `${x - element.offsetWidth / 2}px`;
+                                element.style.top = `${y - element.offsetHeight / 2}px`;
+                            } else {
+                                // Posicionar paneles
+                                element.style.left = `${x - element.offsetWidth / 2}px`;
+                                element.style.top = `${y - element.offsetHeight / 2}px`;
+                            }
+                        }
+                    }
+                }
             }
             
             async cargarConfiguraciones() {
@@ -568,17 +626,6 @@
                 // Cargar imágenes de fondo y botones
                 this.cargarImagenFondo();
                 this.cargarImagenesBotones();
-                
-                // Ajustar inicial de la UI
-                this.calcularFactoresEscala();
-                this.aplicarEscaladoCompleto();
-                
-                // Configurar evento de redimensionamiento
-                window.addEventListener('resize', () => {
-                    this.calcularFactoresEscala();
-                    this.aplicarEscaladoCompleto();
-                    this.cargarImagenFondo();
-                });
             }
             
             cargarImagenFondo() {
@@ -674,84 +721,6 @@
                 
                 if (this.audioElement) {
                     this.audioElement.pause();
-                }
-            }
-            
-            calcularFactoresEscala() {
-                const baseWidth = 1920;
-                const baseHeight = 1080;
-                
-                this.width_scale = window.innerWidth / baseWidth;
-                this.height_scale = window.innerHeight / baseHeight;
-                this.scale_factor = Math.min(this.width_scale, this.height_scale);
-            }
-            
-            aplicarEscaladoCompleto() {
-                // Ajustar tamaño de botones
-                const btnSize = 80 * this.scale_factor;
-                document.querySelectorAll('.btn').forEach(btn => {
-                    btn.style.width = `${btnSize}px`;
-                    btn.style.height = `${btnSize}px`;
-                });
-                
-                // Ajustar tamaño de etiquetas
-                const labelFontSize = 50 * this.scale_factor;
-                document.querySelectorAll('.config-label').forEach(label => {
-                    label.style.fontSize = `${labelFontSize}px`;
-                    label.style.minWidth = `${btnSize}px`;
-                });
-                
-                // Ajustar log de eventos
-                const eventLog = document.getElementById('event-log');
-                if (eventLog) {
-                    eventLog.style.width = `${1000 * this.scale_factor}px`;
-                    eventLog.style.height = `${300 * this.scale_factor}px`;
-                    eventLog.style.fontSize = `${14 * this.scale_factor}px`;
-                    // Centrar el log
-                    eventLog.style.left = '50%';
-                    eventLog.style.transform = 'translate(-50%, -50%)';
-                }
-                
-                // Ajustar log de recompensas
-                const rewardLog = document.getElementById('reward-log');
-                if (rewardLog) {
-                    rewardLog.style.width = `${450 * this.width_scale}px`;
-                    rewardLog.style.height = `${250 * this.height_scale}px`;
-                    rewardLog.style.fontSize = `${10 * this.scale_factor}px`;
-                    // Centrar el log
-                    rewardLog.style.left = '50%';
-                    rewardLog.style.transform = 'translateX(-50%)';
-                }
-                
-                // Reposicionar elementos
-                this.reposicionarElementos();
-            }
-            
-            reposicionarElementos() {
-                // Panel de nivel
-                const nivelPanel = document.getElementById('nivel-panel');
-                if (nivelPanel) {
-                    nivelPanel.style.left = `${window.innerWidth * 0.106}px`;
-                    nivelPanel.style.top = `${window.innerHeight * 0.43}px`;
-                }
-                
-                // Panel de apuesta
-                const apuestaPanel = document.getElementById('apuesta-panel');
-                if (apuestaPanel) {
-                    apuestaPanel.style.right = `${window.innerWidth * 0.154}px`;
-                    apuestaPanel.style.top = `${window.innerHeight * 0.43}px`;
-                }
-                
-                // Log de eventos (ya está centrado por CSS)
-                const eventLog = document.getElementById('event-log');
-                if (eventLog) {
-                    eventLog.style.top = `${window.innerHeight * 0.41}px`;
-                }
-                
-                // Log de recompensas (ya está centrado por CSS)
-                const rewardLog = document.getElementById('reward-log');
-                if (rewardLog && eventLog) {
-                    rewardLog.style.top = `${window.innerHeight * 0.73}px`;
                 }
             }
             
@@ -946,304 +915,321 @@
                     // Habilitar botones
                     document.getElementById('btn-iniciar').disabled = true;
                     document.getElementById('btn-ronda').disabled = false;
+                    document.getElementById('btn-heroico').disabled = false;
+                    document.getElementById('btn-deshonroso').disabled = false;
                     
-                    // Iniciar primera ronda
-                    this.siguienteRonda();
+                    // Generar primer encuentro
+                    this.generarEncuentro();
                     
-                } catch (e) {
-                    this.mostrarMensajeLog(`Error al iniciar arena: ${e.message}`, 'critical');
+                } catch (error) {
+                    this.mostrarMensajeLog(`Error: ${error.message}`, 'enemigo');
+                }
+            }
+            
+            generarEncuentro() {
+                const ronda_key = `ronda_${this.ronda_actual}`;
+                if (!this.encuentros[ronda_key]) {
+                    this.mostrarMensajeLog(`No hay encuentros definidos para la ronda ${this.ronda_actual}`, 'enemigo');
+                    return;
+                }
+                
+                const encuentros_ronda = this.encuentros[ronda_key];
+                const tirada = Math.floor(Math.random() * 100) + 1;
+                
+                // Encontrar el encuentro correspondiente a la tirada
+                for (const encuentro of encuentros_ronda) {
+                    const [min, max] = encuentro.rango.split('-').map(Number);
+                    if (tirada >= min && tirada <= max) {
+                        this.encuentro_actual = encuentro;
+                        break;
+                    }
+                }
+                
+                if (this.encuentro_actual) {
+                    this.mostrarMensajeLog(`\n=== RONDA ${this.ronda_actual} ===`, 'ronda');
+                    this.mostrarMensajeLog(`Tirada: ${tirada} - ${this.encuentro_actual.enemigos}`, 'enemigo');
+                    
+                    // Mostrar descripción si existe
+                    if (this.encuentro_actual.descripcion) {
+                        this.mostrarMensajeLog(this.encuentro_actual.descripcion, 'efecto');
+                    }
+                    
+                    // Mostrar efectos si existen
+                    if (this.encuentro_actual.efectos) {
+                        for (const [estado, valor] of Object.entries(this.encuentro_actual.efectos)) {
+                            this.mostrarMensajeLog(`${estado.toUpperCase()}: ${valor}`, 'efecto');
+                        }
+                    }
                 }
             }
             
             siguienteRonda() {
-                try {
-                    // Verificar si hay encuentros disponibles
-                    if (!this.encuentros || Object.keys(this.encuentros).length === 0) {
-                        throw new Error("No se han cargado encuentros para este nivel");
-                    }
-                    
-                    // Obtener encuentros para la ronda actual
-                    const rondaKey = `ronda_${this.ronda_actual}`;
-                    const encuentrosRonda = this.encuentros[rondaKey];
-                    
-                    if (!encuentrosRonda || encuentrosRonda.length === 0) {
-                        // Si no hay más rondas, finalizar
-                        this.finalizarArena();
-                        return;
-                    }
-                    
-                    // Seleccionar un encuentro aleatorio
-                    const randomValue = Math.floor(Math.random() * 100) + 1;
-                    let encuentroSeleccionado = null;
-                    
-                    for (const encuentro of encuentrosRonda) {
-                        const [min, max] = encuentro.rango.split('-').map(Number);
-                        if (randomValue >= min && randomValue <= max) {
-                            encuentroSeleccionado = encuentro;
-                            break;
+                if (this.ronda_actual >= 3) {
+                    this.finalizarArena();
+                    return;
+                }
+                
+                this.ronda_actual++;
+                this.generarEncuentro();
+                
+                // Después de cada ronda, aplicar descanso corto
+                this.aplicarDescansoCorto();
+            }
+            
+            aplicarDescansoCorto() {
+                const descanso = this.descansos.corto;
+                
+                this.mostrarMensajeLog(`\n${descanso.descripcion}`, 'titulo');
+                
+                // Mostrar beneficios
+                for (const beneficio of descanso.beneficios) {
+                    this.mostrarMensajeLog(`✓ ${beneficio}`, 'efecto');
+                }
+                
+                // Aplicar efectos
+                if (descanso.efectos) {
+                    for (const [estado, valor] of Object.entries(descanso.efectos)) {
+                        if (estado === 'moral') {
+                            this.moral_grupo = Math.min(this.estados_config.limites.moral_max, this.moral_grupo + Number(valor));
+                            this.mostrarMensajeLog(`Moral +${valor}`, 'efecto');
+                        } else if (estado === 'cordura') {
+                            // Si es un dado (formato XdY)
+                            if (typeof valor === 'string' && valor.includes('d')) {
+                                const [numDados, caras] = valor.split('d').map(Number);
+                                let total = 0;
+                                for (let i = 0; i < numDados; i++) {
+                                    total += Math.floor(Math.random() * caras) + 1;
+                                }
+                                this.cordura = Math.min(this.estados_config.limites.cordura_max, this.cordura + total);
+                                this.mostrarMensajeLog(`Cordura +${total} (${valor})`, 'efecto');
+                            } else {
+                                this.cordura = Math.min(this.estados_config.limites.cordura_max, this.cordura + Number(valor));
+                                this.mostrarMensajeLog(`Cordura +${valor}`, 'efecto');
+                            }
                         }
                     }
+                }
+                
+                // Mostrar estados actualizados
+                this.mostrarMensajeLog(`Moral actual: ${this.moral_grupo}/${this.estados_config.limites.moral_max}`, 'center');
+                this.mostrarMensajeLog(`Cordura actual: ${this.cordura}/${this.estados_config.limites.cordura_max}`, 'center');
+            }
+            
+            evaluarAccion(tipo) {
+                if (tipo === 'heroica') {
+                    this.acciones_heroicas++;
+                    this.mostrarMensajeLog(`\nAcción Heroica #${this.acciones_heroicas}`, 'heroico');
                     
-                    if (!encuentroSeleccionado) {
-                        throw new Error("No se pudo seleccionar un encuentro");
+                    // Aplicar efecto de acción heroica
+                    const efecto = this.estados_config.efectos.heroico;
+                    if (efecto.moral) {
+                        this.moral_grupo = Math.min(this.estados_config.limites.moral_max, this.moral_grupo + efecto.moral);
+                        this.mostrarMensajeLog(`Moral +${efecto.moral}`, 'efecto');
                     }
                     
-                    this.encuentro_actual = encuentroSeleccionado;
+                    // Posible reacción del público
+                    this.reaccionPublico('apoyo');
                     
-                    // Mostrar información de la ronda
-                    this.mostrarMensajeLog('\n=== RONDA ' + this.ronda_actual + ' ===', 'ronda');
-                    this.mostrarMensajeLog('Enfrentando: ' + this.encuentro_actual.enemigos, 'enemigo');
+                } else if (tipo === 'deshonrosa') {
+                    this.acciones_deshonrosas++;
+                    this.mostrarMensajeLog(`\nAcción Deshonrosa #${this.acciones_deshonrosas}`, 'deshonroso');
                     
-                    // Habilitar botones de acción
-                    document.getElementById('btn-heroico').disabled = false;
-                    document.getElementById('btn-deshonroso').disabled = false;
-                    document.getElementById('btn-ronda').disabled = true;
+                    // Aplicar efecto de acción deshonrosa
+                    const efecto = this.estados_config.efectos.deshonroso;
+                    if (efecto.cordura) {
+                        this.cordura = Math.max(0, this.cordura + efecto.cordura);
+                        this.mostrarMensajeLog(`Cordura ${efecto.cordura}`, 'efecto');
+                    }
                     
-                } catch (e) {
-                    this.mostrarMensajeLog(`Error en la ronda: ${e.message}`, 'critical');
+                    // Posible reacción del público
+                    this.reaccionPublico('desprecio');
+                }
+                
+                // Verificar si se activa bonificación crítica
+                this.verificarBonificacionCritica();
+                
+                // Mostrar estados actualizados
+                this.mostrarMensajeLog(`Moral actual: ${this.moral_grupo}/${this.estados_config.limites.moral_max}`, 'center');
+                this.mostrarMensajeLog(`Cordura actual: ${this.cordura}/${this.estados_config.limites.cordura_max}`, 'center');
+            }
+            
+            reaccionPublico(tipo) {
+                const reacciones = this.comportamiento.reacciones_publico[tipo];
+                if (!reacciones) return;
+                
+                // Elegir una reacción aleatoria
+                const reaccion = reacciones[Math.floor(Math.random() * reacciones.length)];
+                
+                // Mostrar la reacción del público
+                this.mostrarMensajeLog(reaccion.efecto, 'publico');
+                
+                // Aplicar efectos adicionales si los hay
+                if (reaccion.efecto_adicional) {
+                    for (const [estado, valor] of Object.entries(reaccion.efecto_adicional)) {
+                        if (estado === 'moral') {
+                            this.moral_grupo = Math.min(this.estados_config.limites.moral_max, this.moral_grupo + Number(valor));
+                            this.mostrarMensajeLog(`Moral ${valor > 0 ? '+' : ''}${valor}`, 'efecto');
+                        } else if (estado === 'cordura') {
+                            this.cordura = Math.min(this.estados_config.limites.cordura_max, this.cordura + Number(valor));
+                            this.mostrarMensajeLog(`Cordura ${valor > 0 ? '+' : ''}${valor}`, 'efecto');
+                        }
+                    }
                 }
             }
             
-            async evaluarAccion(tipo) {
-                try {
-                    // Verificar que tenemos la configuración de comportamiento
-                    if (!this.comportamiento) {
-                        throw new Error("No se ha cargado la configuración de comportamiento");
-                    }
-                    
-                    // Obtener la reacción del público según el tipo de acción
-                    const reacciones = tipo === 'heroica' 
-                        ? this.comportamiento.reacciones_publico.apoyo 
-                        : this.comportamiento.reacciones_publico.desprecio;
-                    
-                    // Seleccionar una reacción aleatoria
-                    const reaccionAleatoria = reacciones[Math.floor(Math.random() * reacciones.length)];
-                    
-                    // Mostrar la reacción del público
-                    this.mostrarMensajeLog('\n' + reaccionAleatoria.efecto, 'publico');
-                    
-                    // Aplicar efectos según el tipo de acción
-                    if (tipo === 'heroica') {
-                        this.acciones_heroicas++;
-                        this.moral_grupo = Math.min(this.estados_config.limites.moral_max, this.moral_grupo + 1);
-                        this.mostrarMensajeLog('Acción Heroica realizada (+1 Moral)', 'heroico');
-                    } else {
-                        this.acciones_deshonrosas++;
-                        this.cordura = Math.max(0, this.cordura - 1);
-                        this.mostrarMensajeLog('Acción Deshonrosa realizada (-1 Cordura)', 'deshonroso');
-                    }
-                    
-                    // Verificar si se activa bonificación crítica
-                    if (this.acciones_heroicas >= 3) {
-                        this.bonif_critico = true;
-                        this.mostrarMensajeLog('¡BONIFICACIÓN CRÍTICA ACTIVADA! (+2 Moral)', 'critical');
-                        this.moral_grupo = Math.min(this.estados_config.limites.moral_max, this.moral_grupo + 2);
-                        this.acciones_heroicas = 0; // Resetear contador
-                    }
-                    
-                    // Mostrar estado actual
-                    this.mostrarMensajeLog(`Moral: ${this.moral_grupo}/${this.estados_config.limites.moral_max} | Cordura: ${this.cordura}/${this.estados_config.limites.cordura_max}`, 'center');
-                    
-                    // Deshabilitar botones de acción y habilitar botón de ronda
-                    document.getElementById('btn-heroico').disabled = true;
-                    document.getElementById('btn-deshonroso').disabled = true;
-                    document.getElementById('btn-ronda').disabled = false;
-                    
-                    // Avanzar a la siguiente ronda
-                    this.ronda_actual++;
-                    
-                } catch (e) {
-                    this.mostrarMensajeLog(`Error al evaluar acción: ${e.message}`, 'critical');
+            verificarBonificacionCritica() {
+                // Verificar si se activa la bonificación crítica (3 acciones del mismo tipo)
+                if (this.acciones_heroicas >= 3 && !this.bonif_critico) {
+                    this.bonif_critico = true;
+                    this.mostrarMensajeLog('\n¡BONIFICACIÓN CRÍTICA ACTIVADA!', 'critical');
+                    this.mostrarMensajeLog('Tres acciones heroicas consecutivas', 'heroico');
+                    this.mostrarMensajeLog('+2 a todos los atributos en recompensas finales', 'efecto');
+                } else if (this.acciones_deshonrosas >= 3 && !this.bonif_critico) {
+                    this.bonif_critico = true;
+                    this.mostrarMensajeLog('\n¡PENALIZACIÓN CRÍTICA ACTIVADA!', 'critical');
+                    this.mostrarMensajeLog('Tres acciones deshonrosas consecutivas', 'deshonroso');
+                    this.mostrarMensajeLog('-2 a todos los atributos en recompensas finales', 'efecto');
                 }
             }
             
             finalizarArena() {
-                this.mostrarMensajeLog('\n=== LA ARENA HA CONCLUIDO ===', 'titulo');
+                this.mostrarMensajeLog('\n=== FINAL DE LA ARENA ===', 'titulo');
                 
-                // Determinar resultado
-                let resultado = '';
-                if (this.moral_grupo >= 7 && this.cordura >= 7) {
-                    resultado = 'VICTORIA ÉPICA';
-                } else if (this.moral_grupo >= 5 && this.cordura >= 5) {
-                    resultado = 'VICTORIA';
-                } else if (this.moral_grupo >= 3 && this.cordura >= 3) {
-                    resultado = 'VICTORIA PIRRICA';
-                } else {
-                    resultado = 'DERROTA';
+                // Determinar recompensas según nivel
+                let recompensa_config = null;
+                if (this.heroes_nivel === "1_2") {
+                    recompensa_config = this.recompensas.nivel_1_2;
+                } else if (this.heroes_nivel === "3_4") {
+                    recompensa_config = this.recompensas.nivel_3_4;
+                } else if (this.heroes_nivel === "5_6") {
+                    recompensa_config = this.recompensas.nivel_5_6;
+                } else if (this.heroes_nivel === "7_8") {
+                    recompensa_config = this.recompensas.nivel_7_8;
                 }
                 
-                this.mostrarMensajeLog('Resultado: ' + resultado, 'center');
-                
-                // Calcular recompensas
-                this.calcularRecompensas(resultado);
-                
-                // Deshabilitar botones
-                document.getElementById('btn-ronda').disabled = true;
-                document.getElementById('btn-heroico').disabled = true;
-                document.getElementById('btn-deshonroso').disabled = true;
-                document.getElementById('btn-iniciar').disabled = false;
-            }
-            
-            calcularRecompensas(resultado) {
-                try {
-                    // Obtener configuración de recompensas según nivel
-                    const nivelKey = `nivel_${this.heroes_nivel}`;
-                    const recompensaConfig = this.recompensas[nivelKey];
-                    
-                    if (!recompensaConfig) {
-                        throw new Error("No se encontró configuración de recompensas para el nivel " + this.heroes_nivel);
-                    }
-                    
-                    // Calcular bonificaciones según resultado
-                    let multiplicadorResultado = 1.0;
-                    let expBonus = 0;
-                    
-                    switch (resultado) {
-                        case 'VICTORIA ÉPICA':
-                            multiplicadorResultado = 1.5;
-                            expBonus = 50;
-                            break;
-                        case 'VICTORIA':
-                            multiplicadorResultado = 1.2;
-                            expBonus = 25;
-                            break;
-                        case 'VICTORIA PIRRICA':
-                            multiplicadorResultado = 0.8;
-                            expBonus = 10;
-                            break;
-                        case 'DERROTA':
-                            multiplicadorResultado = 0.5;
-                            expBonus = 0;
-                            break;
-                    }
-                    
+                if (recompensa_config) {
                     // Calcular recompensas base
-                    const monedasBase = recompensaConfig.monedas;
-                    const experienciaBase = recompensaConfig.experiencia;
+                    let monedas_base = recompensa_config.monedas;
+                    let experiencia_base = recompensa_config.experiencia;
                     
-                    // Aplicar multiplicadores
-                    const monedasFinal = Math.floor(monedasBase * multiplicadorResultado);
-                    const experienciaFinal = Math.floor((experienciaBase + expBonus) * multiplicadorResultado);
+                    // Aplicar bonificación/penalización crítica
+                    if (this.bonif_critico) {
+                        if (this.acciones_heroicas >= 3) {
+                            monedas_base += 2;
+                            experiencia_base += 2;
+                        } else if (this.acciones_deshonrosas >= 3) {
+                            monedas_base = Math.max(0, monedas_base - 2);
+                            experiencia_base = Math.max(0, experiencia_base - 2);
+                        }
+                    }
                     
-                    // Calcular ganancia de apuesta si aplica
-                    let gananciaApuesta = 0;
-                    if (this.apuesta_activa && resultado !== 'DERROTA') {
-                        gananciaApuesta = Math.floor(this.apuesta_monedas * recompensaConfig.multiplicador_monedas);
+                    // Calcular ganancia de apuesta si existe
+                    let ganancia_apuesta = 0;
+                    if (this.apuesta_activa) {
+                        ganancia_apuesta = Math.floor(this.apuesta_monedas * recompensa_config.multiplicador_monedas);
                     }
                     
                     // Mostrar recompensas en el log principal
-                    this.mostrarMensajeLog('\n--- RECOMPENSAS ---', 'titulo');
-                    this.mostrarMensajeLog(`Monedas: ${monedasFinal}`, 'recompensa');
-                    this.mostrarMensajeLog(`Experiencia: ${experienciaFinal}`, 'recompensa');
+                    this.mostrarMensajeLog('\n=== RECOMPENSAS ===', 'titulo');
+                    this.mostrarMensajeLog(`Monedas: ${monedas_base}`, 'recompensa');
+                    this.mostrarMensajeLog(`Experiencia: ${experiencia_base}`, 'recompensa');
                     
-                    if (gananciaApuesta > 0) {
-                        this.mostrarMensajeLog(`Ganancia por apuesta: +${gananciaApuesta} monedas`, 'apuesta');
+                    if (this.apuesta_activa) {
+                        this.mostrarMensajeLog(`Ganancia por apuesta: ${ganancia_apuesta} monedas`, 'apuesta');
+                        this.mostrarMensajeLog(`Total monedas: ${monedas_base + ganancia_apuesta}`, 'recompensa');
                     }
                     
-                    // Mostrar tesoros si es victoria
-                    if (resultado !== 'DERROTA' && recompensaConfig.tesoros && recompensaConfig.tesoros.length > 0) {
+                    // Mostrar tesoros
+                    if (recompensa_config.tesoros && recompensa_config.tesoros.length > 0) {
                         this.mostrarMensajeLog('Tesoros obtenidos:', 'recompensa');
-                        recompensaConfig.tesoros.forEach(tesoro => {
-                            this.mostrarMensajeLog(`- ${tesoro}`, 'lista');
-                        });
+                        for (const tesoro of recompensa_config.tesoros) {
+                            this.mostrarMensajeLog(`• ${tesoro}`, 'lista');
+                        }
                     }
                     
-                    // Mostrar log de recompensas detallado
-                    this.mostrarRecompensasDetalladas({
-                        resultado,
-                        monedasBase,
-                        monedasFinal,
-                        experienciaBase,
-                        experienciaFinal,
-                        expBonus,
-                        multiplicadorResultado,
-                        gananciaApuesta,
-                        tesoros: recompensaConfig.tesoros
-                    });
-                    
-                } catch (e) {
-                    this.mostrarMensajeLog(`Error calculando recompensas: ${e.message}`, 'critical');
+                    // Mostrar recompensas en el log de recompensas
+                    this.mostrarRecompensasEnLogDedicado(monedas_base, experiencia_base, ganancia_apuesta, recompensa_config.tesoros);
                 }
+                
+                // Deshabilitar botones de acciones
+                document.getElementById('btn-ronda').disabled = true;
+                document.getElementById('btn-heroico').disabled = true;
+                document.getElementById('btn-deshonroso').disabled = true;
+                
+                // Habilitar botón de reinicio
+                document.getElementById('btn-iniciar').disabled = false;
             }
             
-            mostrarRecompensasDetalladas(detalles) {
+            mostrarRecompensasEnLogDedicado(monedas, experiencia, ganancia_apuesta, tesoros) {
                 const rewardLog = document.getElementById('reward-log');
                 if (!rewardLog) return;
                 
-                // Limpiar y mostrar el log
+                // Limpiar log anterior
                 rewardLog.innerHTML = '';
-                rewardLog.style.display = 'block';
                 
-                // Añadir título
+                // Crear contenido de recompensas
                 const titulo = document.createElement('div');
                 titulo.className = 'log-titulo';
-                titulo.textContent = 'DETALLE DE RECOMPENSAS';
+                titulo.textContent = 'RECOMPENSAS OBTENIDAS';
                 rewardLog.appendChild(titulo);
                 
-                // Añadir resultado
-                const resultado = document.createElement('div');
-                resultado.className = 'log-center';
-                resultado.textContent = `Resultado: ${detalles.resultado}`;
-                rewardLog.appendChild(resultado);
+                const monedasElem = document.createElement('div');
+                monedasElem.className = 'log-recompensa';
+                monedasElem.textContent = `Monedas: ${monedas}`;
+                rewardLog.appendChild(monedasElem);
                 
-                // Añadir línea separadora
-                rewardLog.appendChild(document.createElement('hr'));
+                const expElem = document.createElement('div');
+                expElem.className = 'log-recompensa';
+                expElem.textContent = `Experiencia: ${experiencia}`;
+                rewardLog.appendChild(expElem);
                 
-                // Añadir monedas
-                const monedas = document.createElement('div');
-                monedas.className = 'log-recompensa';
-                monedas.innerHTML = `<strong>Monedas:</strong> ${detalles.monedasBase} × ${detalles.multiplicadorResultado.toFixed(1)} = ${detalles.monedasFinal}`;
-                rewardLog.appendChild(monedas);
-                
-                // Añadir experiencia
-                const exp = document.createElement('div');
-                exp.className = 'log-recompensa';
-                exp.innerHTML = `<strong>Experiencia:</strong> ${detalles.experienciaBase} + ${detalles.expBonus} × ${detalles.multiplicadorResultado.toFixed(1)} = ${detalles.experienciaFinal}`;
-                rewardLog.appendChild(exp);
-                
-                // Añadir ganancia de apuesta si aplica
-                if (detalles.gananciaApuesta > 0) {
-                    const apuesta = document.createElement('div');
-                    apuesta.className = 'log-apuesta';
-                    apuesta.innerHTML = `<strong>Apuesta:</strong> ${this.apuesta_monedas} × ${this.recompensas[`nivel_${this.heroes_nivel}`].multiplicador_monedas} = +${detalles.gananciaApuesta}`;
-                    rewardLog.appendChild(apuesta);
+                if (ganancia_apuesta > 0) {
+                    const apuestaElem = document.createElement('div');
+                    apuestaElem.className = 'log-apuesta';
+                    apuestaElem.textContent = `Apuesta: +${ganancia_apuesta}`;
+                    rewardLog.appendChild(apuestaElem);
+                    
+                    const totalElem = document.createElement('div');
+                    totalElem.className = 'log-recompensa';
+                    totalElem.textContent = `Total: ${monedas + ganancia_apuesta}`;
+                    rewardLog.appendChild(totalElem);
                 }
                 
-                // Añadir tesoros si hay
-                if (detalles.tesoros && detalles.tesoros.length > 0 && detalles.resultado !== 'DERROTA') {
-                    rewardLog.appendChild(document.createElement('hr'));
-                    
+                if (tesoros && tesoros.length > 0) {
                     const tesorosTitulo = document.createElement('div');
                     tesorosTitulo.className = 'log-recompensa';
-                    tesorosTitulo.innerHTML = '<strong>Tesoros:</strong>';
+                    tesorosTitulo.textContent = 'Tesoros:';
                     rewardLog.appendChild(tesorosTitulo);
                     
-                    detalles.tesoros.forEach(tesoro => {
-                        const item = document.createElement('div');
-                        item.className = 'log-lista';
-                        item.textContent = `• ${tesoro}`;
-                        rewardLog.appendChild(item);
-                    });
+                    for (const tesoro of tesoros) {
+                        const tesoroElem = document.createElement('div');
+                        tesoroElem.className = 'log-lista';
+                        tesoroElem.textContent = `• ${tesoro}`;
+                        rewardLog.appendChild(tesoroElem);
+                    }
                 }
+                
+                // Mostrar el log de recompensas
+                rewardLog.style.display = 'block';
+                this.reward_log_visible = true;
             }
             
             mostrarReglas() {
                 this.mostrarMensajeLog('\n=== REGLAS DE LA ARENA ===', 'titulo');
-                this.mostrarMensajeLog('1. Selecciona un nivel entre 1 y 10', 'lista');
-                this.mostrarMensajeLog('2. Opcionalmente, realiza una apuesta (0-500 monedas)', 'lista');
-                this.mostrarMensajeLog('3. Inicia la arena y enfrenta cada ronda', 'lista');
-                this.mostrarMensajeLog('4. En cada ronda, elige una acción Heroica o Deshonrosa', 'lista');
-                this.mostrarMensajeLog('5. Las acciones afectan tu Moral y Cordura', 'lista');
-                this.mostrarMensajeLog('6. 3 acciones heroicas activan una bonificación crítica', 'lista');
-                this.mostrarMensajeLog('7. Al finalizar, recibes recompensas según tu resultado', 'lista');
-                this.mostrarMensajeLog('8. ¡La apuesta se multiplica si ganas!', 'lista');
+                this.mostrarMensajeLog('1. Selecciona nivel (1-10) y apuesta (0-500 monedas)', 'lista');
+                this.mostrarMensajeLog('2. Inicia la arena y enfrenta 3 rondas de enemigos', 'lista');
+                this.mostrarMensajeLog('3. Usa acciones heroicas o deshonrosas para afectar moral/cordura', 'lista');
+                this.mostrarMensajeLog('4. Tras cada ronda, los héroes descansan y recuperan atributos', 'lista');
+                this.mostrarMensajeLog('5. Al finalizar, obtén recompensas según tu desempeño', 'lista');
+                this.mostrarMensajeLog('\nDesarrollado por José Manuel Arena y Omar Nieto (DETION)', 'center');
             }
         }
         
-        // Inicializar la aplicación cuando se carga la página
-        window.addEventListener('DOMContentLoaded', () => {
+        // Inicializar la aplicación cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', () => {
             window.arenaApp = new ArenaApp();
         });
     </script>
 </body>
 </html>
+[file content end]
