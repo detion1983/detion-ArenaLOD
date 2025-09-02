@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>DETION ARENA: LEAGUE OF DUNGEONEERS</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <style>
+        /* Estilos para mantener la apariencia visual */
+        body {
+            background-color: #2D2D2D;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        #arena-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('assets/imagenes/fondo.png');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .config-panel {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .config-label {
+            background-color: transparent;
+            color: black;
+            font-weight: bold;
+            font-size: 24px;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .btn-config {
+            width: 60px;
+            height: 60px;
+            background-color: #2D2D2D;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-config:hover {
+            background-color: #3D3D3D;
+        }
+        
+        #event-log {
+            position: absolute;
+            width: 800px;
+            height: 250px;
+            background-color: transparent;
+            color: black;
+            border: none;
+            font-size: 14px;
+            text-align: center;
+            overflow: auto;
+            pointer-events: none;
+        }
+        
+        .control-buttons {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .control-btn {
+            width: 70px;
+            height: 70px;
+            background-color: #2D2D2D;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .control-btn:hover {
+            background-color: #3D3D3D;
+        }
+        
+        .control-btn:disabled {
+            background-color: #555555;
+            cursor: not-allowed;
+        }
+        
+        #reward-log {
+            position: absolute;
+            width: 400px;
+            height: 200px;
+            background-color: transparent;
+            color: black;
+            border: none;
+            font-size: 12px;
+            text-align: center;
+            overflow: auto;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="arena-container">
+        <!-- Panel de configuración de nivel -->
+        <div class="config-panel" style="left: 10%; top: 45%;">
+            <button class="btn-config" id="btn-nivel-down"><img src="assets/imagenes/btn_nivel_down.png" alt="Bajar nivel"></button>
+            <div class="config-label" id="nivel-label">1</div>
+            <button class="btn-config" id="btn-nivel-up"><img src="assets/imagenes/btn_nivel_up.png" alt="Subir nivel"></button>
+        </div>
+        
+        <!-- Panel de configuración de apuesta -->
+        <div class="config-panel" style="right: 10%; top: 45%;">
+            <button class="btn-config" id="btn-apuesta-down"><img src="assets/imagenes/btn_apuesta_down.png" alt="Bajar apuesta"></button>
+            <div class="config-label" id="apuesta-label">0</div>
+            <button class="btn-config" id="btn-apuesta-up"><img src="assets/imagenes/btn_apuesta_up.png" alt="Subir apuesta"></button>
+        </div>
+        
+        <!-- Log de eventos -->
+        <div id="event-log"></div>
+        
+        <!-- Log de recompensas -->
+        <div id="reward-log"></div>
+        
+        <!-- Botones de control -->
+        <div class="control-buttons">
+            <button class="control-btn" id="btn-iniciar"><img src="assets/imagenes/btn_iniciar.png" alt="Iniciar"></button>
+            <button class="control-btn" id="btn-ronda" disabled><img src="assets/imagenes/btn_ronda.png" alt="Siguiente ronda"></button>
+            <button class="control-btn" id="btn-heroico" disabled><img src="assets/imagenes/btn_heroico.png" alt="Acción heroica"></button>
+            <button class="control-btn" id="btn-deshonroso" disabled><img src="assets/imagenes/btn_deshonroso.png" alt="Acción deshonrosa"></button>
+            <button class="control-btn" id="btn-musica"><img src="assets/imagenes/btn_con_musica.png" alt="Música"></button>
+            <button class="control-btn" id="btn-reiniciar"><img src="assets/imagenes/btn_reiniciar.png" alt="Reiniciar"></button>
+            <button class="control-btn" id="btn-reglas"><img src="assets/imagenes/btn_reglas.png" alt="Reglas"></button>
+        </div>
+    </div>
+
+    <py-config>
+        packages = ["pygame", "json"]
+        [[fetch]]
+        files = [
+            "assets/data/ui_config.json",
+            "assets/data/estados.json",
+            "assets/data/descansos.json",
+            "assets/data/recompensas.json",
+            "assets/data/comportamiento.json",
+            "assets/data/encuentros/nivel_1_2.json",
+            "assets/data/encuentros/nivel_3_4.json",
+            "assets/data/encuentros/nivel_5_6.json",
+            "assets/data/encuentros/nivel_7_8.json",
+            "assets/audio/musica_fondo.mp3"
+        ]
+    </py-config>
+
+    <py-script>
+        # Aquí iría tu código Python adaptado para el navegador
+        # Necesitarías reemplazar las llamadas a PyQt6 con manipulación del DOM
+        # y usar JavaScript para algunas funcionalidades
+        
+        import json
+        import random
+        import asyncio
+        from pyodide.ffi import create_proxy
+        from js import document, console, Audio
+        
+        # Cargar configuraciones
+        async def load_config(file_path):
+            response = await fetch(file_path)
+            return await response.json()
+        
+        # Implementación simplificada de la clase ArenaApp para web
+        class ArenaWebApp:
+            def __init__(self):
+                self.config_loaded = False
+                self.load_configurations()
+                
+            async def load_configurations(self):
+                try:
+                    self.ui_config = await load_config("assets/data/ui_config.json")
+                    self.estados_config = await load_config("assets/data/estados.json")
+                    self.descansos = await load_config("assets/data/descansos.json")
+                    self.recompensas = await load_config("assets/data/recompensas.json")
+                    self.comportamiento = await load_config("assets/data/comportamiento.json")
+                    
+                    # Cargar encuentros según nivel
+                    self.encuentros_niveles = {
+                        "1_2": await load_config("assets/data/encuentros/nivel_1_2.json"),
+                        "3_4": await load_config("assets/data/encuentros/nivel_3_4.json"),
+                        "5_6": await load_config("assets/data/encuentros/nivel_5_6.json"),
+                        "7_8": await load_config("assets/data/encuentros/nivel_7_8.json")
+                    }
+                    
+                    self.config_loaded = True
+                    self.setup_event_listeners()
+                    self.mostrar_mensaje_bienvenida()
+                    
+                except Exception as e:
+                    console.error(f"Error loading config: {e}")
+            
+            def setup_event_listeners(self):
+                # Configurar event listeners para los botones
+                document.getElementById("btn-nivel-up").addEventListener("click", self.incrementar_nivel)
+                document.getElementById("btn-nivel-down").addEventListener("click", self.decrementar_nivel)
+                document.getElementById("btn-apuesta-up").addEventListener("click", self.incrementar_apuesta)
+                document.getElementById("btn-apuesta-down").addEventListener("click", self.decrementar_apuesta)
+                document.getElementById("btn-iniciar").addEventListener("click", self.iniciar_arena)
+                # ... más event listeners
+            
+            def mostrar_mensaje_bienvenida(self):
+                event_log = document.getElementById("event-log")
+                welcome_msg = """
+                <div style='text-align: center; font-weight: bold; font-size: 18px;'>
+                === BIENVENIDO A LA ARENA DE LORAINIA ===
+                </div>
+                <div style='text-align: center;'>
+                ¡Atención, ciudadanos de Lorainia! Aventureros de las Tierras Antiguas,
+                estáis bajo la atenta mirada de los dioses y del gran rey Logan III. 
+                Aquí hallaréis muerte o gloria.
+                </div>
+                <div style='text-align: center; color: #8B4513; font-style: italic;'>
+                Reglamento escrito por José Manuel Arena v1.3 y aplicacion por Omar Nieto (DETION)
+                </div>
+                """
+                event_log.innerHTML = welcome_msg
+            
+            def incrementar_nivel(self, event):
+                nivel_label = document.getElementById("nivel-label")
+                current_value = int(nivel_label.textContent)
+                if current_value < 10:
+                    nivel_label.textContent = str(current_value + 1)
+            
+            # Implementar los demás métodos adaptados para web...
+        
+        # Inicializar la aplicación cuando el DOM esté listo
+        async def main():
+            app = ArenaWebApp()
+            # Esperar a que se carguen las configuraciones
+            while not app.config_loaded:
+                await asyncio.sleep(0.1)
+        
+        # Ejecutar la aplicación
+        asyncio.ensure_future(main())
+    </py-script>
+</body>
+</html>
