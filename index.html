@@ -1,4 +1,3 @@
-html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -85,12 +84,44 @@ html
             max-width: 250px;
             height: 13vw;
             max-height: 250px;
-            top: 43%; /* Posición vertical centrada */
+            top: 38%; /* Posición vertical centrada */
+        }
+
+        /* NUEVO: Estilo para el campo de nivel de arena */
+        #nivel-arena-container {
+            position: absolute;
+            left: 10.6%;
+            top: 62%;
+            transform: translateY(-40%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 4;
+            width: auto; /* Cambiado de 13vw a auto */
+            min-width: 120px; /* Ancho mínimo para mantener consistencia */
+            max-width: 250px;
+            white-space: nowrap; /* Evitar que el texto se divida en múltiples líneas */
+        }
+
+        #nivel-arena-label {
+            background-color: rgba(139, 69, 19, 0.8);
+            color: gold;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1.2vw;
+            max-font-size: 16px;
+            border: 2px solid #8B4513;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+            white-space: nowrap; /* Asegurar que el texto no se divida */
         }
 
         #nivel-container {
             left: 10.6%; /* Posición simétrica izquierda */
             background-image: url('assets/imagenes/heroes.png'), url('https://placehold.co/250x250/555555/FFFFFF/png?text=HEROES');
+            top: 38%; /* Ajustado para hacer espacio para el nivel de arena */
         }
 
         #apuesta-container {
@@ -129,6 +160,9 @@ html
             margin-top: 20px;
         }
         
+
+
+
         /* Fondo */
         #background {
             position: absolute;
@@ -272,6 +306,111 @@ html
             100% { color: #8b0000; }
         }
         
+        /* NUEVO: Cuadrícula de posicionamiento de enemigos */
+        #grid-container {
+            position: fixed;
+            cursor: move;
+            user-select: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70vmin;
+            height: 52.5vmin;
+            background-image: url('assets/imagenes/arena_grid.png');
+            background-size: cover;
+            background-position: center;
+            border: 3px solid #8B4513;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            z-index: 100; /* Mayor z-index para estar por encima de todo */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+
+        /* Contenedor interno para el contenido de la cuadrícula */
+        #grid-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 2px;
+            padding: 1vmin;
+        }
+        
+        #grid-container.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .grid-cell {
+            background-color: rgba(139, 69, 19, 0.3);
+            border: 1px solid rgba(139, 69, 19, 0.5);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .enemy-token {
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8vmin;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+            animation: appear 0.5s ease-out;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .enemy-token:hover {
+            transform: scale(1.1);
+        }
+        
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: scale(0);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Ajustar el botón de cierre para que esté por encima */
+        #close-grid {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #8B0000;
+            color: white;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 101; /* Mayor z-index para estar por encima */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+        }
+
+        #close-grid:hover {
+            background-color: #FF0000;
+        }
+        
         /* Media queries para ajustes específicos */
         @media (max-width: 1200px) {
             #event-log {
@@ -318,6 +457,28 @@ html
                 gap: 3vw;
                 bottom: 2%;
             }
+            
+            #grid-container {
+                width: 85vmin;
+                height: 63.75vmin;
+                position: fixed; /* Asegurar que sea fixed en móviles también */
+            }
+
+            #nivel-arena-container {
+                width: auto; /* Cambiado a auto */
+                min-width: 100px;
+                top: 65%;
+            }
+            
+            #nivel-arena-label {
+                font-size: 2vw;
+                white-space: nowrap; /* Mantener en una línea */
+            }
+            
+            #nivel-container {
+                top: 35%;
+            }
+
         }
         
         @media (max-width: 480px) {
@@ -325,11 +486,6 @@ html
                 width: 90vw;
                 height: 43.2vw;
                 transform: translate(-50%, calc(-50% - 70%));
-            }
-            
-            #log-container {
-                width: 90vw;
-                height: 27vw;
             }
             
             #nivel-container, #apuesta-container {
@@ -363,6 +519,27 @@ html
                 gap: 2vw;
                 bottom: 1%;
             }
+            
+            #grid-container {
+                width: 95vmin;
+                height: 71.25vmin;
+                position: fixed; /* Asegurar que sea fixed en móviles también */
+            }
+
+            #nivel-arena-container {
+                width: auto; /* Cambiado a auto */
+                min-width: 80px;
+                top: 68%
+            }
+            
+            #nivel-arena-label {
+                font-size: 2.5vw;
+                white-space: nowrap; /* Mantener en una línea */
+            }
+            
+            #nivel-container {
+                top: 32%;
+            }
         }
     </style>
 </head>
@@ -376,6 +553,14 @@ html
         <div id="event-log"></div>
     </div>
 
+    <!-- NUEVO: Cuadrícula de posicionamiento de enemigos -->
+    <div id="grid-container">
+        <div id="close-grid">X</div>
+        <div id="grid-content">
+            <!-- Las celdas se generarán dinámicamente con JavaScript -->
+        </div>
+    </div>
+
     <!-- Contenedor para la imagen de título -->
     <div id="titulo-container"></div>
         
@@ -386,6 +571,11 @@ html
             <div id="nivel-label" class="config-label">1</div>
             <button id="btn-nivel-up" class="btn"></button>
         </div>
+    </div>
+
+    <!-- NUEVO: Contenedor para el nivel de arena -->
+    <div id="nivel-arena-container">
+        <div id="nivel-arena-label">Nivel arena COBRE</div>
     </div>
 
     <!-- Panel de apuesta -->
@@ -459,6 +649,11 @@ html
                 // Efectos
                 this.blink_state = false;
                 this.blink_interval = null;
+                
+                // NUEVO: Para la cuadrícula
+                this.gridVisible = false;
+                this.enemyTokens = [];
+                this.enemigosProcesados = [];
             }
             
             async init() {
@@ -479,10 +674,354 @@ html
                     // Ajustar UI inicialmente
                     this.ajustarUIResponsive();
                     
+                    // NUEVO: Inicializar la cuadrícula
+                    this.inicializarGrid();
+
+                    // NUEVO: Actualizar nivel de arena inicial
+                    this.actualizarNivelArena();
+                    
                 } catch (error) {
                     console.error("Error inicializando la aplicación:", error);
                     this.mostrarMensajeLog(`Error al inicializar: ${error.message}`, 'enemigo');
                 }
+            }
+            
+            // NUEVO: Inicializar la cuadrícula - CORREGIDO
+            inicializarGrid() {
+                const gridContainer = document.getElementById('grid-container');
+                const closeButton = document.getElementById('close-grid');
+                
+                // Variables para el arrastre
+                this.isDragging = false;
+                this.dragOffset = { x: 0, y: 0 };
+                
+                // Crear las 48 celdas (8x6) dentro del grid-content
+                const gridContent = document.getElementById('grid-content');
+                for (let i = 0; i < 48; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.index = i;
+                    gridContent.appendChild(cell);
+                }
+                
+                // Evento para cerrar la cuadrícula - FIXED
+                closeButton.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Evitar que el evento se propague al contenedor
+                    this.ocultarGrid();
+                });
+                
+                // Eventos para hacer la cuadrícula arrastrable
+                gridContainer.addEventListener('mousedown', (e) => {
+                    // Solo iniciar arrastre si se hace clic en áreas no interactivas
+                    if (e.target === gridContainer || e.target === gridContent) {
+                        this.isDragging = true;
+                        this.dragOffset = {
+                            x: e.clientX - gridContainer.offsetLeft,
+                            y: e.clientY - gridContainer.offsetTop
+                        };
+                        gridContainer.style.cursor = 'grabbing';
+                    }
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (this.isDragging) {
+                        gridContainer.style.left = (e.clientX - this.dragOffset.x) + 'px';
+                        gridContainer.style.top = (e.clientY - this.dragOffset.y) + 'px';
+                        gridContainer.style.transform = 'none'; // Eliminar transform al arrastrar
+                    }
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                    gridContainer.style.cursor = 'move';
+                });
+                
+                // También soporte para dispositivos táctiles
+                gridContainer.addEventListener('touchstart', (e) => {
+                    if (e.target === gridContainer || e.target === gridContent) {
+                        this.isDragging = true;
+                        const touch = e.touches[0];
+                        this.dragOffset = {
+                            x: touch.clientX - gridContainer.offsetLeft,
+                            y: touch.clientY - gridContainer.offsetTop
+                        };
+                        e.preventDefault(); // Prevenir scroll no deseado
+                    }
+                });
+                
+                document.addEventListener('touchmove', (e) => {
+                    if (this.isDragging) {
+                        const touch = e.touches[0];
+                        gridContainer.style.left = (touch.clientX - this.dragOffset.x) + 'px';
+                        gridContainer.style.top = (touch.clientY - this.dragOffset.y) + 'px';
+                        gridContainer.style.transform = 'none'; // Eliminar transform al arrastrar
+                        e.preventDefault(); // Prevenir scroll no deseado
+                    }
+                });
+                
+                document.addEventListener('touchend', () => {
+                    this.isDragging = false;
+                });
+            }
+
+            // NUEVO: Mostrar la cuadrícula con enemigos - CORREGIDO
+            mostrarGridConEnemigos(enemigos) {
+                this.limpiarGrid();
+                this.enemigosProcesados = enemigos;
+                
+                // Posicionar la cuadrícula en el centro al mostrarla
+                const gridContainer = document.getElementById('grid-container');
+                gridContainer.style.left = '50%';
+                gridContainer.style.top = '50%';
+                gridContainer.style.transform = 'translate(-50%, -50%)';
+                
+                // Colocar enemigos en posiciones aleatorias
+                const posicionesDisponibles = Array.from({length: 48}, (_, i) => i);
+                
+                enemigos.forEach(enemigo => {
+                    if (posicionesDisponibles.length === 0) return;
+                    
+                    // Colocar cada unidad individualmente
+                    for (let i = 0; i < enemigo.cantidad; i++) {
+                        if (posicionesDisponibles.length === 0) break;
+                        
+                        const posIndex = Math.floor(Math.random() * posicionesDisponibles.length);
+                        const cellIndex = posicionesDisponibles.splice(posIndex, 1)[0];
+                        const cell = document.querySelector(`.grid-cell[data-index="${cellIndex}"]`);
+                        
+                        if (cell) {
+                            const token = document.createElement('div');
+                            token.className = 'enemy-token';
+                            
+                            // Asignar color según el tipo de enemigo
+                            const tipo = this.obtenerTipoEnemigo(enemigo.nombre);
+                            token.style.backgroundColor = this.obtenerColorPorTipo(tipo);
+                            token.textContent = this.obtenerAbreviatura(enemigo.nombre);
+                            token.title = enemigo.nombre;
+                            
+                            cell.appendChild(token);
+                            this.enemyTokens.push(token);
+                        }
+                    }
+                });
+                
+                // Mostrar la cuadrícula
+                document.getElementById('grid-container').classList.add('visible');
+                this.gridVisible = true;
+            }
+
+            // NUEVO: Limpiar la cuadrícula - CORREGIDO
+            limpiarGrid() {
+                this.enemyTokens.forEach(token => token.remove());
+                this.enemyTokens = [];
+                
+                document.querySelectorAll('.grid-cell').forEach(cell => {
+                    while (cell.firstChild) {
+                        cell.removeChild(cell.firstChild);
+                    }
+                });
+            }// NUEVO: Inicializar la cuadrícula - CORREGIDO
+            inicializarGrid() {
+                const gridContainer = document.getElementById('grid-container');
+                const closeButton = document.getElementById('close-grid');
+                
+                // Variables para el arrastre
+                this.isDragging = false;
+                this.dragOffset = { x: 0, y: 0 };
+                
+                // Crear las 48 celdas (8x6) dentro del grid-content
+                const gridContent = document.getElementById('grid-content');
+                for (let i = 0; i < 48; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.index = i;
+                    gridContent.appendChild(cell);
+                }
+                
+                // Evento para cerrar la cuadrícula - FIXED
+                closeButton.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Evitar que el evento se propague al contenedor
+                    this.ocultarGrid();
+                });
+                
+                // Eventos para hacer la cuadrícula arrastrable
+                gridContainer.addEventListener('mousedown', (e) => {
+                    // Solo iniciar arrastre si se hace clic en áreas no interactivas
+                    if (e.target === gridContainer || e.target === gridContent) {
+                        this.isDragging = true;
+                        this.dragOffset = {
+                            x: e.clientX - gridContainer.offsetLeft,
+                            y: e.clientY - gridContainer.offsetTop
+                        };
+                        gridContainer.style.cursor = 'grabbing';
+                    }
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (this.isDragging) {
+                        gridContainer.style.left = (e.clientX - this.dragOffset.x) + 'px';
+                        gridContainer.style.top = (e.clientY - this.dragOffset.y) + 'px';
+                        gridContainer.style.transform = 'none'; // Eliminar transform al arrastrar
+                    }
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                    gridContainer.style.cursor = 'move';
+                });
+                
+                // También soporte para dispositivos táctiles
+                gridContainer.addEventListener('touchstart', (e) => {
+                    if (e.target === gridContainer || e.target === gridContent) {
+                        this.isDragging = true;
+                        const touch = e.touches[0];
+                        this.dragOffset = {
+                            x: touch.clientX - gridContainer.offsetLeft,
+                            y: touch.clientY - gridContainer.offsetTop
+                        };
+                        e.preventDefault(); // Prevenir scroll no deseado
+                    }
+                });
+                
+                document.addEventListener('touchmove', (e) => {
+                    if (this.isDragging) {
+                        const touch = e.touches[0];
+                        gridContainer.style.left = (touch.clientX - this.dragOffset.x) + 'px';
+                        gridContainer.style.top = (touch.clientY - this.dragOffset.y) + 'px';
+                        gridContainer.style.transform = 'none'; // Eliminar transform al arrastrar
+                        e.preventDefault(); // Prevenir scroll no deseado
+                    }
+                });
+                
+                document.addEventListener('touchend', () => {
+                    this.isDragging = false;
+                });
+            }
+
+            // NUEVO: Mostrar la cuadrícula con enemigos - CORREGIDO
+            mostrarGridConEnemigos(enemigos) {
+                this.limpiarGrid();
+                this.enemigosProcesados = enemigos;
+                
+                // Posicionar la cuadrícula en el centro al mostrarla
+                const gridContainer = document.getElementById('grid-container');
+                gridContainer.style.left = '50%';
+                gridContainer.style.top = '50%';
+                gridContainer.style.transform = 'translate(-50%, -50%)';
+                
+                // Colocar enemigos en posiciones aleatorias
+                const posicionesDisponibles = Array.from({length: 48}, (_, i) => i);
+                
+                enemigos.forEach(enemigo => {
+                    if (posicionesDisponibles.length === 0) return;
+                    
+                    // Colocar cada unidad individualmente
+                    for (let i = 0; i < enemigo.cantidad; i++) {
+                        if (posicionesDisponibles.length === 0) break;
+                        
+                        const posIndex = Math.floor(Math.random() * posicionesDisponibles.length);
+                        const cellIndex = posicionesDisponibles.splice(posIndex, 1)[0];
+                        const cell = document.querySelector(`.grid-cell[data-index="${cellIndex}"]`);
+                        
+                        if (cell) {
+                            const token = document.createElement('div');
+                            token.className = 'enemy-token';
+                            
+                            // Asignar color según el tipo de enemigo
+                            const tipo = this.obtenerTipoEnemigo(enemigo.nombre);
+                            token.style.backgroundColor = this.obtenerColorPorTipo(tipo);
+                            token.textContent = this.obtenerAbreviatura(enemigo.nombre);
+                            token.title = enemigo.nombre;
+                            
+                            cell.appendChild(token);
+                            this.enemyTokens.push(token);
+                        }
+                    }
+                });
+                
+                // Mostrar la cuadrícula
+                document.getElementById('grid-container').classList.add('visible');
+                this.gridVisible = true;
+            }
+
+            // NUEVO: Limpiar la cuadrícula - CORREGIDO
+            limpiarGrid() {
+                this.enemyTokens.forEach(token => token.remove());
+                this.enemyTokens = [];
+                
+                document.querySelectorAll('.grid-cell').forEach(cell => {
+                    while (cell.firstChild) {
+                        cell.removeChild(cell.firstChild);
+                    }
+                });
+            }
+            
+            // NUEVO: Obtener tipo de enemigo basado en su nombre
+            obtenerTipoEnemigo(nombre) {
+                nombre = nombre.toLowerCase();
+                
+                if (nombre.includes('goblin') || nombre.includes('orco') || nombre.includes('ogro')) {
+                    return 'humanoide';
+                } else if (nombre.includes('esqueleto') || nombre.includes('zombi') || nombre.includes('muerto')) {
+                    return 'no-muerto';
+                } else if (nombre.includes('dragón') || nombre.includes('wyvern') || nombre.includes('grifo')) {
+                    return 'dragón';
+                } else if (nombre.includes('demonio') || nombre.includes('diablo') || nombre.includes('infernal')) {
+                    return 'demonio';
+                } else if (nombre.includes('lobo') || nombre.includes('rata') || nombre.includes('araña')) {
+                    return 'bestia';
+                } else if (nombre.includes('hechicero') || nombre.includes('mago') || nombre.includes('brujo')) {
+                    return 'magico';
+                } else {
+                    return 'otros';
+                }
+            }
+            
+            // NUEVO: Obtener color según el tipo de enemigo
+            obtenerColorPorTipo(tipo) {
+                const colores = {
+                    'humanoide': '#8B4513',      // Marrón
+                    'no-muerto': '#696969',      // Gris oscuro
+                    'dragón': '#B22222',         // Rojo fuego
+                    'demonio': '#4B0082',        // Índigo
+                    'bestia': '#556B2F',         // Verde oscuro
+                    'magico': '#9370DB',         // Púrpura medio
+                    'otros': '#2F4F4F'           // Gris pizarra oscuro
+                };
+                
+                return colores[tipo] || '#2F4F4F';
+            }
+            
+            // NUEVO: Obtener abreviatura para el token
+            obtenerAbreviatura(nombre) {
+                if (nombre.length <= 3) return nombre.substring(0, 3);
+                
+                // Intentar obtener la primera letra de cada palabra
+                const palabras = nombre.split(' ');
+                if (palabras.length > 1) {
+                    return palabras.map(p => p[0]).join('').toUpperCase().substring(0, 3);
+                }
+                
+                // Si es una sola palabra, tomar las primeras tres letras
+                return nombre.substring(0, 3).toUpperCase();
+            }
+            
+            // NUEVO: Limpiar la cuadrícula
+            limpiarGrid() {
+                this.enemyTokens.forEach(token => token.remove());
+                this.enemyTokens = [];
+                
+                document.querySelectorAll('.grid-cell').forEach(cell => {
+                    while (cell.firstChild) {
+                        cell.removeChild(cell.firstChild);
+                    }
+                });
+            }
+            
+            // NUEVO: Ocultar la cuadrícula
+            ocultarGrid() {
+                document.getElementById('grid-container').classList.remove('visible');
+                this.gridVisible = false;
             }
             
             ajustarUIResponsive() {
@@ -498,6 +1037,12 @@ html
             
             async cargarConfiguraciones() {
                 try {
+                    // Rutas base
+                    this.BASE_DIR = window.location.href.replace(/\/[^\/]*$/, '');
+                    this.IMAGES_DIR = `${this.BASE_DIR}/assets/imagenes`;
+                    this.AUDIO_DIR = `${this.BASE_DIR}/assets/audio`;
+                    this.DATA_DIR = `${this.BASE_DIR}/assets/data`;
+                    
                     // Cargar configuraciones desde archivos JSON
                     const configFiles = [
                         'ui_config.json',
@@ -528,24 +1073,38 @@ html
                     this.recompensas = recompensasConfig || {};
                     this.comportamiento = comportamientoConfig || {};
                     
+                    // Debug: mostrar recompensas cargadas
+                    console.log("Recompensas cargadas:", this.recompensas);
+                    console.log("Niveles disponibles en recompensas:", Object.keys(this.recompensas));
+                    
                     // Cargar encuentros según el nivel
                     await this.cargarEncuentros();
+                    
                     // Cargar experiencia de monstruos
                     await this.cargarExperienciaMonstruos();
+                    
+                    // Debug: mostrar monstruos cargados
+                    console.log("Monstruos cargados:", this.monstruos_exp.monstruos ? this.monstruos_exp.monstruos.length : 0);
+                    if (this.monstruos_exp.monstruos && this.monstruos_exp.monstruos.length > 0) {
+                        console.log("Ejemplos de monstruos:", this.monstruos_exp.monstruos.slice(0, 5).map(m => m.nombre));
+                    }
                     
                 } catch (e) {
                     console.error("Error cargando configuraciones:", e);
                     this.mostrarMensajeLog(`Error: ${e.message}`, 'enemigo');
+                    
                     // Usar configuraciones por defecto
                     this.ui_config = {};
                     this.estados_config = {limites: {moral_max: 100, cordura_max: 100}};
                     this.descansos = {};
                     this.recompensas = {};
                     this.comportamiento = {};
+                    this.monstruos_exp = {monstruos: []};
                 }
             }
             
-            async cargarEncuentros() {
+            
+           async cargarEncuentros() {
                 try {
                     // Determinar archivo según nivel
                     let archivoEncuentros = '';
@@ -563,29 +1122,27 @@ html
                     if (!response.ok) throw new Error(`No se pudo cargar ${archivoEncuentros}`);
                     
                     this.encuentros = await response.json();
+                    console.log(`Encuentros cargados para nivel ${this.nivel_valor}:`, Object.keys(this.encuentros));
+                    
                 } catch (e) {
                     console.error("Error cargando encuentros:", e);
                     this.mostrarMensajeLog(`No se pudo cargar los encuentros: ${e.message}`, 'enemigo');
                     this.encuentros = {};
                 }
             }
-            
+
             async cargarExperienciaMonstruos() {
                 try {
                     const response = await fetch(`${this.DATA_DIR}/encuentros/monstruos-exp.json`);
                     if (!response.ok) throw new Error("No se pudo cargar monstruos-exp.json");
                     
                     this.monstruos_exp = await response.json();
+                    
                 } catch (e) {
                     console.error("Error cargando experiencia de monstruos:", e);
                     this.monstruos_exp = {monstruos: []};
                 }
             }
-
-
-
-
-
 
             inicializarUI() {
                 // Cargar imágenes de botones
@@ -702,6 +1259,7 @@ html
                 if (this.nivel_valor < 10) {
                     this.nivel_valor++;
                     document.getElementById('nivel-label').textContent = this.nivel_valor;
+                    this.actualizarNivelArena();
                 }
             }
             
@@ -709,7 +1267,31 @@ html
                 if (this.nivel_valor > 1) {
                     this.nivel_valor--;
                     document.getElementById('nivel-label').textContent = this.nivel_valor;
+                    this.actualizarNivelArena();
                 }
+            }
+
+            actualizarNivelArena() {
+                let nivelArena = "";
+                let color = "";
+                
+                if (this.nivel_valor <= 2) {
+                    nivelArena = "COBRE";
+                    color = "#CD7F32"; // Bronze color
+                } else if (this.nivel_valor <= 4) {
+                    nivelArena = "BRONCE";
+                    color = "#B87333"; // Copper color
+                } else if (this.nivel_valor <= 6) {
+                    nivelArena = "PLATA";
+                    color = "#C0C0C0"; // Silver color
+                } else {
+                    nivelArena = "ORO";
+                    color = "#FFD700"; // Gold color
+                }
+                
+                const nivelArenaLabel = document.getElementById('nivel-arena-label');
+                nivelArenaLabel.textContent = `Nivel arena ${nivelArena}`;
+                nivelArenaLabel.style.color = color;
             }
             
             incrementarApuesta() {
@@ -771,86 +1353,53 @@ html
                 document.getElementById('btn-heroico').disabled = true;
                 document.getElementById('btn-deshonroso').disabled = true;
                 
-                // Reactivar música si estaba activa
-                if (this.musica_activada && this.audioElement) {
-                    this.audioElement.play().catch(e => {
-                        console.log("Error al reactivar música:", e);
-                    });
+                // Reiniciar valores
+                this.nivel_valor = 1;
+                this.apuesta_valor = 0;
+                document.getElementById('nivel-label').textContent = this.nivel_valor;
+                document.getElementById('apuesta-label').textContent = this.apuesta_valor;
+                
+                // Ocultar la cuadrícula si está visible
+                if (this.gridVisible) {
+                    this.ocultarGrid();
                 }
                 
                 this.mostrarMensajeBienvenida();
-                this.mostrarMensajeLog("\n=== ARENA REINICIADA ===", 'titulo');
-                this.exp_total_acumulada = 0;
+            }
+            
+            mostrarReglas() {
+                this.mostrarMensajeLog("\n=== REGLAS DE LA ARENA ===", 'titulo');
+                this.mostrarMensajeLog("1. Selecciona el nivel de tus héroes y la apuesta inicial", 'lista');
+                this.mostrarMensajeLog("2. Haz clic en 'Iniciar Arena' para comenzar", 'lista');
+                this.mostrarMensajeLog("3. En cada ronda, enfrentarás enemigos aleatorios", 'lista');
+                this.mostrarMensajeLog("4. Después de cada encuentro, puedes realizar acciones heroicas o deshonrosas", 'lista');
+                this.mostrarMensajeLog("5. Gana experiencia y recompensas al completar rondas", 'lista');
+                this.mostrarMensajeLog("6. ¡Cuidado con la moral y cordura de tu grupo!", 'lista');
             }
             
             async iniciarArena() {
-                const nivel = this.nivel_valor;
-                const apuesta = this.apuesta_valor;
+                // Establecer el nivel de los héroes (IMPORTANTE)
+                this.heroes_nivel = this.nivel_valor;
+
+                // Cargar encuentros según el nivel
+                await this.cargarEncuentros();
                 
-                try {
-                    if (apuesta < 0 || apuesta > 500) {
-                        throw new Error("La apuesta debe estar entre 0 y 500");
-                    }
-                    
-                    // Determinar nivel de héroes
-                    if (nivel <= 2) {
-                        this.heroes_nivel = "1_2";
-                    } else if (nivel <= 4) {
-                        this.heroes_nivel = "3_4";
-                    } else if (nivel <= 6) {
-                        this.heroes_nivel = "5_6";
-                    } else {
-                        this.heroes_nivel = "7_8";
-                    }
-                    
-                    // Cargar encuentros para el nivel
-                    await this.cargarEncuentros();
-                    
-                    if (Object.keys(this.encuentros).length === 0) {
-                        throw new Error("No se pudieron cargar los encuentros para este nivel");
-                    }
-                    
-                    this.apuesta_monedas = apuesta;
-                    this.apuesta_activa = apuesta > 0;
-                    
-                    // Obtener el multiplicador de recompensas
-                    const recompensa = this.recompensas[`nivel_${this.heroes_nivel}`] || {};
-                    const multiplicador = recompensa.multiplicador_monedas || 1.0;
-                    
-                    // Mostrar mensaje del speaker sobre la apuesta
-                    this.mostrarMensajeLog("\n«¡Atención, nobles espectadores!»", 'speaker');
-                    
-                    if (this.apuesta_activa) {
-                        const ganancia_potencial = parseInt(this.apuesta_monedas * multiplicador);
-                        this.mostrarMensajeLog(`«¡Nuestros valientes héroes han apostado ${this.apuesta_monedas} monedas!»`, 'speaker');
-                        this.mostrarMensajeLog(`«Si logran la victoria, obtendrán ${ganancia_potencial} monedas adicionales!»`, 'speaker');
-                    } else {
-                        this.mostrarMensajeLog("«¡Jajaja nuestros héroes no han apostado o eso quiere decir que solo les queda la vida!»", 'speaker');
-                        this.mostrarMensajeLog("«¡Una muestra de valentía o tal vez de locura!»", 'speaker');
-                    }
-                    
-                    this.mostrarMensajeLog("«¡Que comience el espectáculo!»", 'speaker');
-                    
-                    // Habilitar botones apropiados
-                    document.getElementById('btn-iniciar').disabled = true;
-                    document.getElementById('btn-ronda').disabled = false;
-                    document.getElementById('btn-heroico').disabled = false;
-                    document.getElementById('btn-deshonroso').disabled = false;
-                    
-                    this.mostrarMensajeLog(`\n=== HÉROES DE NIVEL ${this.heroes_nivel.replace('_', '-')} ===`, 'titulo');
-                    if (this.apuesta_activa) {
-                        this.mostrarMensajeLog(`¡Has apostado ${this.apuesta_monedas} monedas!`, 'apuesta');
-                    } else {
-                        this.mostrarMensajeLog("¡No has realizado ninguna apuesta!", 'apuesta');
-                    }
-                    
-                    this.ejecutarRonda(1);
-                    
-                } catch (error) {
-                    console.error("Error iniciando arena:", error);
-                    this.mostrarMensajeLog(`No se pudo iniciar la arena: ${error.message}`, 'enemigo');
-                    document.getElementById('btn-iniciar').disabled = false;
+                // Deshabilitar botón de inicio
+                document.getElementById('btn-iniciar').disabled = true;
+                document.getElementById('btn-ronda').disabled = false;
+                
+                // Registrar apuesta si existe
+                if (this.apuesta_valor > 0) {
+                    this.apuesta_activa = true;
+                    this.apuesta_monedas = this.apuesta_valor;
+                    this.mostrarMensajeLog(`\nHas apostado ${this.apuesta_valor} monedas de oro. ¡Buena suerte!`, 'apuesta');
                 }
+                
+                this.mostrarMensajeLog(`\n=== INICIANDO ARENA NIVEL ${this.nivel_valor} ===`, 'titulo');
+                this.mostrarMensajeLog(`Ronda ${this.ronda_actual}`, 'ronda');
+                
+                // Generar primer encuentro
+                this.ejecutarRonda(this.ronda_actual);
             }
             
             ejecutarRonda(ronda) {
@@ -889,15 +1438,7 @@ html
                 // CAPTURAR LA EXPERIENCIA RETORNADA POR mostrarEnemigos()
                 const expTotal = this.mostrarEnemigos();
                 this.bonif_critico = false;
-                
-                // Eliminamos la línea redundante que mostraba la experiencia aquí
-                // if (expTotal > 0) {
-                //     this.exp_total_acumulada += expTotal;
-                //     this.mostrarMensajeLog(`Experiencia acumulada total: ${this.exp_total_acumulada}`, 'recompensa');
-                // }
             }
-
-            // ... resto del código ...
 
             mostrarEnemigos() {
                 if (!this.encuentro_actual) {
@@ -924,11 +1465,12 @@ html
                 
                 let expTotal = 0;
                 let expDesglose = [];
+                let enemigosParaGrid = [];
                 
                 for (const grupo of gruposEnemigos) {
                     const grupoTrim = grupo.trim();
                     
-                    // Extraer cantidad y nombre - manejar tanto "3 Goblins" como "Goblins" (implícitamente 1)
+                    // Extraer cantidad y nombre
                     let cantidad = 1;
                     let nombreCompleto = grupoTrim;
                     
@@ -939,8 +1481,10 @@ html
                         nombreCompleto = matchCantidad[2];
                     }
                     
-                    // Limpiar el nombre (eliminar información entre paréntesis)
-                    let nombreLimpio = nombreCompleto.replace(/\s*\(.*\)$/, '').trim();
+                    // Limpiar el nombre (eliminar información entre paréntesis y después de "+")
+                    let nombreLimpio = nombreCompleto.replace(/\s*\(.*\)$/, '')
+                        .replace(/\s*\+.*$/, '')
+                        .trim();
                     
                     // BÚSQUEDA MEJORADA DE EXPERIENCIA
                     const monstruoInfo = this.buscarMonstruoPorNombre(nombreLimpio);
@@ -957,7 +1501,17 @@ html
                         });
                     } else {
                         console.log("No se encontró EXP para:", nombreLimpio);
+                        // Asignar experiencia por defecto basada en el nivel
+                        const expPorDefecto = this.nivel_valor * 100;
+                        expMonstruo = expPorDefecto * cantidad;
+                        expTotal += expMonstruo;
                     }
+                    
+                    // Añadir a la lista para la cuadrícula
+                    enemigosParaGrid.push({
+                        nombre: nombreLimpio,
+                        cantidad: cantidad
+                    });
                     
                     // Buscar icono
                     let icono = "👹"; // Por defecto
@@ -968,26 +1522,27 @@ html
                         }
                     }
                     
-                    // Mostrar información del enemigo sin el detalle de EXP en esta línea
-                    this.mostrarMensajeLog(
-                        `${icono} ${cantidad} ${nombreLimpio}`, 
-                        'enemigo'
-                    );
+                    // Mostrar información del enemigo con su experiencia individual
+                    if (monstruoInfo) {
+                        this.mostrarMensajeLog(
+                            `${icono} ${cantidad} ${nombreLimpio} (EXP: ${expMonstruo} = ${cantidad} × ${monstruoInfo.exp})`, 
+                            'enemigo'
+                        );
+                    } else {
+                        this.mostrarMensajeLog(
+                            `${icono} ${cantidad} ${nombreLimpio} (EXP: ${expMonstruo})`, 
+                            'enemigo'
+                        );
+                    }
                 }
                 
-                // Mostrar experiencia total si hay monstruos con EXP
+                // Mostrar la cuadrícula con los enemigos
+                this.mostrarGridConEnemigos(enemigosParaGrid);
+                
+                // Actualizar experiencia acumulada
                 if (expTotal > 0) {
-                    // Mostrar solo el total, no el desglose detallado
-                    //this.mostrarMensajeLog(`Experiencia del encuentro: ${expTotal}`, 'recompensa');
-                    
-                    // Actualizar la experiencia acumulada
-                    //this.exp_total_acumulada += expTotal;
-                    //this.mostrarMensajeLog(`Experiencia acumulada total: ${this.exp_total_acumulada}`, 'recompensa');
-                    
-                    // Guardar la EXP para usarla en las recompensas finales
-                    //this.exp_encuentro_actual = expTotal;
-                } else if (this.monstruos_exp.monstruos.length > 0) {
-                    this.mostrarMensajeLog("\nNo se pudo calcular la EXP de los monstruos", 'enemigo');
+                    this.exp_total_acumulada += expTotal;
+                    this.exp_encuentro_actual = expTotal;
                 }
                 
                 return expTotal;
@@ -1084,164 +1639,88 @@ html
                 return resultado;
             }
 
-            // Modificar mostrarEnemigos para usar un enfoque más robusto
-            mostrarEnemigos() {
-                if (!this.encuentro_actual) {
-                    this.mostrarMensajeLog("No hay enemigos en esta ronda", 'enemigo');
-                    return 0;
-                }
-                
-                // Procesar la expresión para obtener la cantidad real
-                const encuentroProcesado = this.procesarExpresionDados(this.encuentro_actual);
-                const gruposEnemigos = encuentroProcesado.split(" y ");
-                
-                this.mostrarMensajeLog("\nENEMIGOS EN LA ARENA:", 'enemigo');
-                
-                // Diccionario de iconos para tipos de enemigos
-                const iconos_enemigos = {
-                    "Hechicero": "🧙", "Escudo": "🛡️", "Espada": "⚔️", "Hacha": "⚔️",
-                    "Nigromante": "🧙", "Brujo": "🧙", "Chamán": "🧙", "Psíquico": "🧠",
-                    "Acechador": "👁️", "Lobo": "🐺", "Rata": "🐀", "Araña": "🕷️",
-                    "Ogro": "👹", "Orco": "👹", "Goblin": "👺", "Esqueleto": "💀",
-                    "Zombi": "🧟", "Demonio": "😈", "Dragón": "🐲", "Troll": "👹",
-                    "Gigante": "👣", "Sátiro": "🐐", "Gárgola": "🗿", "Hidra": "🐍",
-                    "Grifo": "🦅", "Wyvern": "🐉", "Vampiro": "🦇", "Momia": "🧟"
-                };
-                
-                let expTotal = 0;
-                let expDesglose = [];
-                
-                for (const grupo of gruposEnemigos) {
-                    const grupoTrim = grupo.trim();
-                    
-                    // Extraer cantidad y nombre - manejar tanto "3 Goblins" como "Goblins" (implícitamente 1)
-                    let cantidad = 1;
-                    let nombreCompleto = grupoTrim;
-                    
-                    // Buscar patrones como "2 Goblins" o "1d6 Goblins (ya procesado)"
-                    const matchCantidad = grupoTrim.match(/^(\d+)\s+(.+)$/);
-                    if (matchCantidad) {
-                        cantidad = parseInt(matchCantidad[1]);
-                        nombreCompleto = matchCantidad[2];
-                    }
-                    
-                    // Limpiar el nombre (eliminar información entre paréntesis)
-                    let nombreLimpio = nombreCompleto.replace(/\s*\(.*\)$/, '').trim();
-                    
-                    // BÚSQUEDA MEJORADA DE EXPERIENCIA
-                    const monstruoInfo = this.buscarMonstruoPorNombre(nombreLimpio);
-                    
-                    let expMonstruo = 0;
-                    if (monstruoInfo) {
-                        expMonstruo = monstruoInfo.exp * cantidad;
-                        expTotal += expMonstruo;
-                        expDesglose.push({
-                            nombre: nombreLimpio, 
-                            cantidad: cantidad,
-                            expIndividual: monstruoInfo.exp,
-                            expTotal: expMonstruo
-                        });
-                    } else {
-                        console.log("No se encontró EXP para:", nombreLimpio);
-                    }
-                    
-                    // Buscar icono
-                    let icono = "👹"; // Por defecto
-                    for (const [tipo, emoji] of Object.entries(iconos_enemigos)) {
-                        if (nombreLimpio.includes(tipo)) {
-                            icono = emoji;
-                            break;
-                        }
-                    }
-                    
-                    // Mostrar información del enemigo con su experiencia individual
-                    this.mostrarMensajeLog(
-                        `${icono} ${cantidad} ${nombreLimpio}${monstruoInfo ? ` (EXP: ${expMonstruo} = ${cantidad} × ${monstruoInfo.exp})` : ''}`, 
-                        'enemigo'
-                    );
-                }
-                
-                // Eliminado: No mostrar la experiencia total del encuentro aquí
-                // if (expTotal > 0) {
-                //     this.mostrarMensajeLog(`\nExperiencia total del encuentro: ${expTotal}`, 'recompensa');
-                //     
-                //     // Mostrar desglose detallado
-                //     if (expDesglose.length > 0) {
-                //         expDesglose.forEach(item => {
-                //             this.mostrarMensajeLog(`• ${item.cantidad} ${item.nombre}: ${item.expTotal} EXP (${item.cantidad} × ${item.expIndividual})`, 
-                //                 'lista'
-                //             );
-                //         });
-                //     }
-                //     
-                //     this.exp_total_acumulada += expTotal;
-                //     
-                //     // Guardar la EXP para usarla en las recompensas finales
-                //     this.exp_encuentro_actual = expTotal;
-                // } else if (this.monstruos_exp.monstruos.length > 0) {
-                //     this.mostrarMensajeLog("\nNo se pudo calcular la EXP de los monstruos", 'enemigo');
-                // }
-                
-                // En su lugar, solo actualizamos la experiencia acumulada sin mostrar mensaje
-                if (expTotal > 0) {
-                    this.exp_total_acumulada += expTotal;
-                    this.exp_encuentro_actual = expTotal;
-                }
-                
-                return expTotal;
-            }
-
-            // Añadir nueva función para búsqueda flexible de monstruos
             buscarMonstruoPorNombre(nombreBuscado) {
                 if (!this.monstruos_exp.monstruos || this.monstruos_exp.monstruos.length === 0) {
                     return null;
                 }
                 
-                const nombreLimpio = nombreBuscado.trim().toLowerCase();
+                const nombreLimpio = nombreBuscado.trim().toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Eliminar tildes
+                    .replace(/[^a-z0-9\s]/g, "") // Eliminar caracteres especiales
+                    .replace(/\s+/g, ' '); // Espacios múltiples a uno
                 
                 // Primero: búsqueda exacta
-                let monstruo = this.monstruos_exp.monstruos.find(m => 
-                    m.nombre.toLowerCase() === nombreLimpio
-                );
+                let monstruo = this.monstruos_exp.monstruos.find(m => {
+                    const nombreMonstruo = m.nombre.toLowerCase()
+                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                        .replace(/[^a-z0-9\s]/g, "")
+                        .replace(/\s+/g, ' ');
+                    return nombreMonstruo === nombreLimpio;
+                });
                 
                 if (monstruo) return monstruo;
                 
-                // Segundo: búsqueda en nombres alternativos
-                monstruo = this.monstruos_exp.monstruos.find(m => 
-                    m.nombres_alternativos && 
-                    m.nombres_alternativos.some(alt => alt.toLowerCase() === nombreLimpio)
-                );
+                // Segundo: búsqueda por contenido (si el nombre del monstruo está contenido en el nombre buscado)
+                monstruo = this.monstruos_exp.monstruos.find(m => {
+                    const nombreMonstruo = m.nombre.toLowerCase()
+                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                        .replace(/[^a-z0-9\s]/g, "")
+                        .replace(/\s+/g, ' ');
+                    
+                    return nombreLimpio.includes(nombreMonstruo) || 
+                        nombreMonstruo.includes(nombreLimpio);
+                });
                 
                 if (monstruo) return monstruo;
                 
-                // Tercero: búsqueda flexible (manejar plural/singular)
-                // Si el nombre buscado termina con "s", intentar con singular
-                if (nombreLimpio.endsWith('s')) {
-                    const nombreSingular = nombreLimpio.slice(0, -1);
-                    monstruo = this.monstruos_exp.monstruos.find(m => 
-                        m.nombre.toLowerCase() === nombreSingular
-                    );
-                    
-                    if (monstruo) return monstruo;
+                // Tercero: búsqueda por palabras clave comunes
+                const palabrasClave = {
+                    'goblin': 'Goblin',
+                    'zombi': 'Zombi',
+                    'lobo': 'Lobo Gigante',
+                    'bandido': 'Bandido',
+                    'brujo': 'Brujo',
+                    'esqueleto': 'Esqueleto',
+                    'orco': 'Orco',
+                    'sátiro': 'Sátiro',
+                    'saurio': 'Saurio',
+                    'tumulario': 'Tumulario',
+                    'gnoll': 'Gnoll',
+                    'sanguijuela': 'Sanguijuela Gigante',
+                    'necrófago': 'Necrófago',
+                    'hombre bestia': 'Hombre Bestia',
+                    'araña': 'Araña Gigante',
+                    'ogro': 'Ogro',
+                    'nigromante': 'Nigromante',
+                    'licántropo': 'Licántropo',
+                    'enredador': 'Enredador',
+                    'troll': 'Troll Común',
+                    'minotauro': 'Minotauro',
+                    'momia': 'Momia',
+                    'elfo oscuro': 'Elfo Oscuro',
+                    'ettin': 'Ettin',
+                    'espectro': 'Espectro',
+                    'gárgola': 'Gárgola',
+                    'wyvern': 'Wyvern',
+                    'demonio': 'Demonio de Sangre',
+                    'guardian': 'Guardián de la Tumba',
+                    'psíquico': 'Psíquico',
+                    'esfinge': 'Esfinge',
+                    'naga': 'Naga',
+                    'scorpion': 'Escorpión Gigante',
+                    'vampiro': 'Vampiro',
+                    'hidra': 'Hidra',
+                    'gigante': 'Gigante',
+                    'dragón': 'Dragón'
+                };
+                
+                for (const [clave, valor] of Object.entries(palabrasClave)) {
+                    if (nombreLimpio.includes(clave)) {
+                        return this.monstruos_exp.monstruos.find(m => m.nombre === valor);
+                    }
                 }
                 
-                // Cuarto: si el nombre buscado no termina con "s", intentar con plural
-                if (!nombreLimpio.endsWith('s')) {
-                    const nombrePlural = nombreLimpio + 's';
-                    monstruo = this.monstruos_exp.monstruos.find(m => 
-                        m.nombre.toLowerCase() === nombrePlural
-                    );
-                    
-                    if (monstruo) return monstruo;
-                }
-                
-                // Quinto: búsqueda por contenido (si el nombre del monstruo está contenido en el nombre buscado o viceversa)
-                monstruo = this.monstruos_exp.monstruos.find(m => 
-                    nombreLimpio.includes(m.nombre.toLowerCase()) || 
-                    m.nombre.toLowerCase().includes(nombreLimpio)
-                );
-                
-                return monstruo || null;
+                return null;
             }
             
             evaluarAccion(tipo_accion) {
@@ -1314,6 +1793,10 @@ html
             }
             
             siguienteRonda() {
+                // Ocultar la cuadrícula actual si está visible
+                if (this.gridVisible) {
+                    this.ocultarGrid();
+                }
                 
                 if (this.ronda_actual >= 3) {
                     this.finalizarArena();
@@ -1349,11 +1832,32 @@ html
             }
 
             procesarRecompensas() {
-                const nivel_key = `nivel_${this.heroes_nivel}`;
-                const recompensa = this.recompensas[nivel_key];
+                // Verificar que tenemos recompensas cargadas
+                if (!this.recompensas || Object.keys(this.recompensas).length === 0) {
+                    this.mostrarMensajeLog("No se encontraron recompensas configuradas", 'enemigo');
+                    return;
+                }
+                
+                // Determinar el grupo de nivel basado en el nivel actual de los héroes
+                let grupo_nivel = '';
+                if (this.heroes_nivel <= 2) {
+                    grupo_nivel = 'nivel_1_2';
+                } else if (this.heroes_nivel <= 4) {
+                    grupo_nivel = 'nivel_3_4';
+                } else if (this.heroes_nivel <= 6) {
+                    grupo_nivel = 'nivel_5_6';
+                } else if (this.heroes_nivel <= 8) {
+                    grupo_nivel = 'nivel_7_8';
+                } else {
+                    // Para niveles 9-10, usar el grupo más alto disponible
+                    grupo_nivel = 'nivel_7_8';
+                }
+                
+                const recompensa = this.recompensas[grupo_nivel];
                 
                 if (!recompensa) {
-                    this.mostrarMensajeLog("No se encontraron recompensas para este nivel", 'enemigo');
+                    this.mostrarMensajeLog(`No se encontraron recompensas para el grupo ${grupo_nivel}`, 'enemigo');
+                    this.mostrarMensajeLog(`Recompensas disponibles: ${Object.keys(this.recompensas).join(', ')}`, 'enemigo');
                     return;
                 }
                 
@@ -1376,6 +1880,7 @@ html
                 const experiencia_final = experiencia_base;
                 
                 this.mostrarMensajeLog("\nRECOMPENSAS OBTENIDAS:", 'titulo');
+                this.mostrarMensajeLog(`Nivel: ${recompensa.nivel}`, 'recompensa');
                 this.mostrarMensajeLog(`${monedas_final} monedas de oro`, 'recompensa');
                 this.mostrarMensajeLog(`${experiencia_final} puntos de experiencia`, 'recompensa');
 
@@ -1393,7 +1898,7 @@ html
                         ganancia_apuesta, 
                         tesoros, 
                         experiencia_final,
-                        this.exp_total_acumulada  // Cambiado: usar la experiencia acumulada de todas las rondas
+                        this.exp_total_acumulada
                     );
                 }
                 
@@ -1401,7 +1906,6 @@ html
                 this.procesarDescanso();
             }
            
-
             mostrarLogRecompensas(monedas_base, monedas_final, multiplicador, ganancia_apuesta, tesoros, experiencia_base, exp_monstruos) {
                 this.mostrarMensajeLog("\nDESGLOSE DE RECOMPENSA:", 'titulo');
                 this.mostrarMensajeLog(`Apuesta inicial: ${this.apuesta_monedas} monedas`, 'recompensa');
@@ -1449,7 +1953,7 @@ html
             
             
             mostrarReglas() {
-                        // Crear un enlace temporal para descargar/abrir el PDF
+                // Crear un enlace temporal para descargar/abrir el PDF
                 const link = document.createElement('a');
                 link.href = `${this.BASE_DIR}/assets/data/Arena_V1.4.pdf`;
                 link.target = '_blank'; // Abrir en nueva pestaña
@@ -1461,7 +1965,20 @@ html
                 document.body.removeChild(link);
                 
                 this.mostrarMensajeLog("\nAbriendo reglas de la arena...", 'publico');
-                        }
+            }
+            
+            aplicarEfectoPublico(id, esHeroico) {
+                // Implementar efectos especiales según el ID de la reacción
+                // Esta es una implementación básica que puedes expandir
+                if (id > 15) {
+                    // Efecto especial para IDs altos
+                    if (esHeroico) {
+                        this.moral_grupo = Math.min(this.estados_config.limites.moral_max, this.moral_grupo + 5);
+                    } else {
+                        this.cordura = Math.max(0, this.cordura - 3);
+                    }
+                }
+            }
         }
 
         // Inicializar la aplicación cuando se carga la página
