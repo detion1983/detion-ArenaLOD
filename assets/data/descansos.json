@@ -1,27 +1,35 @@
 {
   "corto": {
     "descripcion": "DESCANSO CORTO (Entre Rondas)",
+    "duracion": "Menos de una hora",
     "beneficios": [
-      "Usar pociones o vendajes para recuperar Vitalidad",
-      "Recuperar 1-2 puntos de Energía",
-      "Reorganizar equipo (no cambiar armas/armaduras)",
-      "+2 Moral de Grupo y 1d3 Cordura"
+      "Curación (VIT): Los héroes pueden tirar 1d6 para recuperar Vitalidad. Un héroe puede usar hechizos de nivel 1 de curación",
+      "Los magos y druidas recuperan todo su Maná",
+      "Recuperación de Energía (E): Se pueden recuperar 1 punto de Energía, si tienen éxito en una tirada con dificultad del 50%",
+      "Gestión del equipo: Los héroes pueden reorganizar su equipo y atajos, pero no pueden equiparse nuevas armaduras o armas. Pueden beber una poción o usar un objeto de sus atajos",
+      "Cordura y Moral: El grupo aprovecha este breve descanso para recuperar +2 Moral de Grupo y 1d3 Cordura hablando con otros grupos de Héroes"
     ],
     "efectos": {
+      "vitalidad": "1d6",
+      "mana": "completo (solo magos y druidas)",
+      "energia": 1,
       "moral": 2,
       "cordura": "1d3"
     }
   },
   "largo": {
     "descripcion": "DESCANSO LARGO (Fin del Torneo)",
+    "duracion": "Varias horas",
     "beneficios": [
-      "Recuperar TODA Vitalidad y Maná",
-      "Curar enfermedades/venenos",
+      "Curación Completa: Los héroes recuperan TODA su Vitalidad y Maná",
+      "Se pueden curar enfermedades o venenos",
       "Subir de nivel si hay XP suficiente",
-      "Reparar equipo y cambiar armas/armaduras",
-      "+3 Moral de Grupo y 1d6 Cordura (rezando en capilla)"
+      "Gestión del equipo: Los héroes pueden reorganizar equipo, reparar equipo dañado y cambiar armas/armaduras",
+      "Cordura y Moral: El grupo recupera +3 Moral de Grupo y 1d6 Cordura rezando en la capilla de la Arena"
     ],
     "efectos": {
+      "vitalidad": "completa",
+      "mana": "completo",
       "moral": 3,
       "cordura": "1d6"
     }
