@@ -1,0 +1,504 @@
+{
+  "monstruos": [
+    {
+      "id": 1,
+      "nombre": "Acechador",
+      "exp": 1200
+    },
+    {
+      "id": 2,
+      "nombre": "Alma en Pena",
+      "exp": 650
+    },
+    {
+      "id": 3,
+      "nombre": "Araña Gigante",
+      "exp": 170
+    },
+    {
+      "id": 4,
+      "nombre": "Araña Gigantesca",
+      "exp": 900
+    },
+    {
+      "id": 5,
+      "nombre": "Arpía",
+      "exp": 130
+    },
+    {
+      "id": 6,
+      "nombre": "Bandido",
+      "exp": 90
+    },
+    {
+      "id": 7,
+      "nombre": "Bandido Líder",
+      "exp": 130
+    },
+    {
+      "id": 8,
+      "nombre": "Berserker",
+      "exp": 110
+    },
+    {
+      "id": 9,
+      "nombre": "Brujo",
+      "exp": 180
+    },
+    {
+      "id": 10,
+      "nombre": "Caballero Caído",
+      "exp": 240
+    },
+    {
+      "id": 11,
+      "nombre": "Centauro",
+      "exp": 150
+    },
+    {
+      "id": 12,
+      "nombre": "Ciempiés Gigante",
+      "exp": 300
+    },
+    {
+      "id": 13,
+      "nombre": "Cocatriz",
+      "exp": 325
+    },
+    {
+      "id": 14,
+      "nombre": "Demonio de la Plaga",
+      "exp": 200
+    },
+    {
+      "id": 15,
+      "nombre": "Demonio de Sangre",
+      "exp": 200
+    },
+    {
+      "id": 16,
+      "nombre": "Demonio Hinchado",
+      "exp": 650
+    },
+    {
+      "id": 17,
+      "nombre": "Diablillo de la Plaga",
+      "exp": 50
+    },
+    {
+      "id": 18,
+      "nombre": "Dragón",
+      "exp": 4000
+    },
+    {
+      "id": 19,
+      "nombre": "Drider",
+      "exp": 600
+    },
+    {
+      "id": 20,
+      "nombre": "Elemental de Agua",
+      "exp": 150
+    },
+    {
+      "id": 21,
+      "nombre": "Elemental de Fuego",
+      "exp": 250
+    },
+    {
+      "id": 22,
+      "nombre": "Elemental de Tierra",
+      "exp": 200
+    },
+    {
+      "id": 23,
+      "nombre": "Elemental de Viento",
+      "exp": 150
+    },
+    {
+      "id": 24,
+      "nombre": "Elfo Oscuro",
+      "exp": 125
+    },
+    {
+      "id": 25,
+      "nombre": "Elfo Oscuro Asesino",
+      "exp": 135
+    },
+    {
+      "id": 26,
+      "nombre": "Elfo Oscuro Brujo",
+      "exp": 165
+    },
+    {
+      "id": 27,
+      "nombre": "Elfo Oscuro Capitán",
+      "exp": 150
+    },
+    {
+      "id": 28,
+      "nombre": "Elfo Oscuro Tirador",
+      "exp": 135
+    },
+    {
+      "id": 29,
+      "nombre": "Enjambre de Murciélagos",
+      "exp": 15
+    },
+    {
+      "id": 30,
+      "nombre": "Enredador",
+      "exp": 450
+    },
+    {
+      "id": 31,
+      "nombre": "Escorpión Gigante",
+      "exp": 220
+    },
+    {
+      "id": 32,
+      "nombre": "Esfinge",
+      "exp": 1000
+    },
+    {
+      "id": 33,
+      "nombre": "Espectro",
+      "exp": 500
+    },
+    {
+      "id": 34,
+      "nombre": "Esqueleto",
+      "exp": 80
+    },
+    {
+      "id": 35,
+      "nombre": "Ettin",
+      "exp": 550
+    },
+    {
+      "id": 36,
+      "nombre": "Fantasma",
+      "exp": 550
+    },
+    {
+      "id": 37,
+      "nombre": "Gárgola",
+      "exp": 400
+    },
+    {
+      "id": 38,
+      "nombre": "Gigante",
+      "exp": 900
+    },
+    {
+      "id": 39,
+      "nombre": "Gnoll",
+      "exp": 80
+    },
+    {
+      "id": 40,
+      "nombre": "Gnoll Chamán",
+      "exp": 150
+    },
+    {
+      "id": 41,
+      "nombre": "Gnoll Sargento",
+      "exp": 100
+    },
+    {
+      "id": 42,
+      "nombre": "Goblin",
+      "exp": 70
+    },
+    {
+      "id": 43,
+      "nombre": "Goblin Chamán",
+      "exp": 130
+    },
+    {
+      "id": 44,
+      "nombre": "Goblin de las Cuevas",
+      "exp": 70
+    },
+    {
+      "id": 45,
+      "nombre": "Golem de Piedra",
+      "exp": 3000
+    },
+    {
+      "id": 46,
+      "nombre": "Gran Demonio",
+      "exp": 1200
+    },
+    {
+      "id": 47,
+      "nombre": "Grifo",
+      "exp": 1500
+    },
+    {
+      "id": 48,
+      "nombre": "Guardián de la Tumba",
+      "exp": 550
+    },
+    {
+      "id": 49,
+      "nombre": "Hidra",
+      "exp": 1850
+    },
+    {
+      "id": 50,
+      "nombre": "Hombre Bestia",
+      "exp": 100
+    },
+    {
+      "id": 51,
+      "nombre": "Hombre Bestia Guardia",
+      "exp": 120
+    },
+    {
+      "id": 52,
+      "nombre": "Hombre Bestia Jefe",
+      "exp": 150
+    },
+    {
+      "id": 53,
+      "nombre": "Lazarillo Acechador",
+      "exp": 100
+    },
+    {
+      "id": 54,
+      "nombre": "Lizarrico",
+      "exp": 90
+    },
+    {
+      "id": 55,
+      "nombre": "Lobo Gigante",
+      "exp": 110
+    },
+    {
+      "id": 56,
+      "nombre": "Lobo Temible",
+      "exp": 130
+    },
+    {
+      "id": 57,
+      "nombre": "Medusa",
+      "exp": 600
+    },
+    {
+      "id": 58,
+      "nombre": "Minerva",
+      "exp": 200
+    },
+    {
+      "id": 59,
+      "nombre": "Minotauro",
+      "exp": 450
+    },
+    {
+      "id": 60,
+      "nombre": "Momia Esquelética",
+      "exp": 350
+    },
+    {
+      "id": 61,
+      "nombre": "Momia",
+      "exp": 400
+    },
+    {
+      "id": 62,
+      "nombre": "Momia Reina",
+      "exp": 800
+    },
+    {
+      "id": 63,
+      "nombre": "Momia Sacerdote",
+      "exp": 500
+    },
+    {
+      "id": 64,
+      "nombre": "Naga",
+      "exp": 550
+    },
+    {
+      "id": 65,
+      "nombre": "Necrófago",
+      "exp": 120
+    },
+    {
+      "id": 66,
+      "nombre": "Nigromante",
+      "exp": 300
+    },
+    {
+      "id": 67,
+      "nombre": "Ogro",
+      "exp": 200
+    },
+    {
+      "id": 68,
+      "nombre": "Ogro Berserker",
+      "exp": 250
+    },
+    {
+      "id": 69,
+      "nombre": "Ogro Jefe",
+      "exp": 350
+    },
+    {
+      "id": 70,
+      "nombre": "Orco",
+      "exp": 90
+    },
+    {
+      "id": 71,
+      "nombre": "Orco Bruto",
+      "exp": 120
+    },
+    {
+      "id": 72,
+      "nombre": "Orco Chamán",
+      "exp": 180
+    },
+    {
+      "id": 73,
+      "nombre": "Orco Jefe",
+      "exp": 200
+    },
+    {
+      "id": 74,
+      "nombre": "Oso Cavernario",
+      "exp": 300
+    },
+    {
+      "id": 75,
+      "nombre": "Poyter",
+      "exp": 100
+    },
+    {
+      "id": 76,
+      "nombre": "Rata de la Peste Gigante",
+      "exp": 80
+    },
+    {
+      "id": 77,
+      "nombre": "Rata Gigante",
+      "exp": 50
+    },
+    {
+      "id": 78,
+      "nombre": "Rata Guerrera",
+      "exp": 70
+    },
+    {
+      "id": 79,
+      "nombre": "Salamandra",
+      "exp": 250
+    },
+    {
+      "id": 80,
+      "nombre": "Sanguijuela Gigante",
+      "exp": 100
+    },
+    {
+      "id": 81,
+      "nombre": "Sapo Gigante",
+      "exp": 200
+    },
+    {
+      "id": 82,
+      "nombre": "Sátiro",
+      "exp": 130
+    },
+    {
+      "id": 83,
+      "nombre": "Sátiro Jefe",
+      "exp": 180
+    },
+    {
+      "id": 84,
+      "nombre": "Saurio",
+      "exp": 110
+    },
+    {
+      "id": 85,
+      "nombre": "Saurio de Élite",
+      "exp": 160
+    },
+    {
+      "id": 86,
+      "nombre": "Saurio Sacerdote",
+      "exp": 250
+    },
+    {
+      "id": 87,
+      "nombre": "Serpiente Gigante",
+      "exp": 150
+    },
+    {
+      "id": 88,
+      "nombre": "Serpiente Enorme",
+      "exp": 400
+    },
+    {
+      "id": 89,
+      "nombre": "Troll Común",
+      "exp": 300
+    },
+    {
+      "id": 90,
+      "nombre": "Troll de Piedra",
+      "exp": 450
+    },
+    {
+      "id": 91,
+      "nombre": "Troll de Río",
+      "exp": 350
+    },
+    {
+      "id": 92,
+      "nombre": "Vampiro",
+      "exp": 800
+    },
+    {
+      "id": 93,
+      "nombre": "Vampiro Vástago",
+      "exp": 500
+    },
+    {
+      "id": 94,
+      "nombre": "Viscosidad",
+      "exp": 200
+    },
+    {
+      "id": 95,
+      "nombre": "Wyvern",
+      "exp": 1200
+    },
+    {
+      "id": 96,
+      "nombre": "Zombi",
+      "exp": 60
+    },
+    {
+      "id": 97,
+      "nombre": "Zombi Gigante",
+      "exp": 200
+    },
+    {
+      "id": 98,
+      "nombre": "Tumulario",
+      "exp": 400
+    },
+    {
+      "id": 99,
+      "nombre": "Licántropo",
+      "exp": 500
+    },
+    {
+      "id": 100,
+      "nombre": "Caballero Caído",
+      "exp": 350
+    }
+  ]
+}

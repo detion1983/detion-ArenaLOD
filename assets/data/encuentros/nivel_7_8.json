@@ -1,26 +1,26 @@
 {
     "ronda_1": [
         {"rango": "1-16", "enemigos": "2 Arañas Gigantescas"},
-        {"rango": "17-33", "enemigos": "1d4 Caballeros Caídos (España Larga Maldita, Escudo) y 1 Cocatriz"},
+        {"rango": "17-33", "enemigos": "1d4 Caballeros Caídos (Espada Larga Maldita, Escudo) y 1 Cocatriz"},
         {"rango": "34-50", "enemigos": "1 Vampiro Vástago (Espada Larga) y 1d4+1 Esqueletos (Espada Larga, Escudo)"},
         {"rango": "51-66", "enemigos": "4 Centauros (Jabalina, Escudo)"},
         {"rango": "67-83", "enemigos": "1 Hidra"},
-        {"rango": "84-100", "enemigos": "1 Troll Común (Martillo de Guerra) y 1 Orco Chaman (Bastón, He:2 Melé, 2 Distancia, +2 Apoyo)"}
+        {"rango": "84-100", "enemigos": "1 Troll Común (Martillo de Guerra) y 1 Orco Chamán (Bastón, He:2 Melé, 2 Distancia, +2 Apoyo)"}
     ],
     "ronda_2": [
         {"rango": "1-16", "enemigos": "1d2 Sapos Gigantes y 2 Salamandras"},
         {"rango": "17-33", "enemigos": "1d3 Espectros y 2 Almas en Pena"},
         {"rango": "34-50", "enemigos": "1d2 Medusas (Espada Ancha, Escudo) y 1 Acechador (He: 2 Melé, 2 Distancia)"},
         {"rango": "51-66", "enemigos": "1 Gran Demonio (Gran Hacha) y 1d3 Demonios de Sangre (Espada Larga Maldita)"},
-        {"rango": "67-83", "enemigos": "1 Monnia Reina (Espada Larga, He:3 Melé, 2 Distancia, 2 Apoyo + Levantar a los Muertos) y 1d4 Guardianes de la Tumba (Alabarda)"},
+        {"rango": "67-83", "enemigos": "1 Momia Reina (Espada Larga, He:3 Melé, 2 Distancia, 2 Apoyo + Levantar a los Muertos) y 1d4 Guardianes de la Tumba (Alabarda)"},
         {"rango": "84-100", "enemigos": "1 Serpiente Enorme"}
     ],
     "ronda_3": [
         {"rango": "1-16", "enemigos": "2 Psíquicos (He:3 Melé, 2 Distancia, 2 Apoyo) y 1 Golem"},
         {"rango": "17-33", "enemigos": "1 Esfinge y 1 Gran Demonio (Gran Hacha Maldita)"},
         {"rango": "34-50", "enemigos": "1 Hidra y 1d3 Grifos"},
-        {"rango": "51-66", "enemigos": "1 Wyvern y 2 Ogro Jefe (Hacha de Batalla, Escudo)"},
+        {"rango": "51-66", "enemigos": "1 Wyvern y 2 Ogros Jefes (Hacha de Batalla, Escudo)"},
         {"rango": "67-83", "enemigos": "2 Gigantes (Martillo de Guerra)"},
-        {"rango": "84-100", "enemigos": "1 Dragon"}
+        {"rango": "84-100", "enemigos": "1 Dragón"}
     ]
 }

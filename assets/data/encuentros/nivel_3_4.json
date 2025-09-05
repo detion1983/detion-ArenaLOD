@@ -1,0 +1,26 @@
+{
+    "ronda_1": [
+        {"rango": "1-16", "enemigos": "1 Troll de Río (Martillo de guerra) y 1d4 Hombres Bestia (Hacha de batalla, Escudo)"},
+        {"rango": "17-33", "enemigos": "1d2 Minotauros (Gran Hacha)"},
+        {"rango": "34-50", "enemigos": "1d3 Orcos Brutos (Hacha de Batalla, Escudo) y 1d4 Sátiros (Jabalina, Escudo)"},
+        {"rango": "51-66", "enemigos": "1 Momia (Espada Larga, Escudo) y 1d4 Necrófagos"},
+        {"rango": "67-83", "enemigos": "1d2 Trolls de Río (Martillo de Guerra) y 1d3 Lagartos (Red, Espada Corta)"},
+        {"rango": "84-100", "enemigos": "1d2 Arpías y 1 Elfo Oscuro Brujo (Bastón)"}
+    ],
+    "ronda_2": [
+        {"rango": "1-16", "enemigos": "1d3 Caballeros Caídos (Espada Larga, Escudo) y 1d3 Bandidos (Ballesta, Daga)"},
+        {"rango": "17-33", "enemigos": "1d2 Ettin (Martillo de Guerra)"},
+        {"rango": "34-50", "enemigos": "1d6+1 Saurios (Martillo de Batalla, Escudo) y 1d2 Troll Común (Martillo de Guerra)"},
+        {"rango": "51-66", "enemigos": "1d2 Elfo Oscuro Brujo (Bastón) y 1d4 Arañas Gigantes"},
+        {"rango": "67-83", "enemigos": "1 Minotauro (Gran Hacha), 1 Licántropo y 1d4 Gnolls (Ballesta, Daga)"},
+        {"rango": "84-100", "enemigos": "1d2 Espectros y 1d4 Tumularios (Espada Larga Maldita)"}
+    ],
+    "ronda_3": [
+        {"rango": "1-16", "enemigos": "1d4 Trolls Comunes (Martillo de Guerra)"},
+        {"rango": "17-33", "enemigos": "1 Brujo Oscuro (Bastón) y 1d3 Gárgolas"},
+        {"rango": "34-50", "enemigos": "1 Ogro Berserker (Mayal) y 1d4 Gnolls (Ballesta, Daga)"},
+        {"rango": "51-66", "enemigos": "1d2 Saurios de Élite (Hacha de Batalla, Escudo) y 1d2 Trolls de Río (Martillo de Guerra)"},
+        {"rango": "67-83", "enemigos": "1 Wyvern"},
+        {"rango": "84-100", "enemigos": "1d3 Orcos Chamanes (Bastón) y 1d3 Orcos Jefes (Lucero del Alba, Escudo)"}
+    ]
+}
