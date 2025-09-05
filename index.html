@@ -444,6 +444,7 @@ html
                 this.apuesta_activa = false;
                 this.apuesta_monedas = 0;
                 this.reward_log_visible = false;
+                this.exp_total_acumulada = 0;
                 
                 // Control de música
                 this.musica_activada = true;
@@ -529,6 +530,8 @@ html
                     
                     // Cargar encuentros según el nivel
                     await this.cargarEncuentros();
+                    // Cargar experiencia de monstruos
+                    await this.cargarExperienciaMonstruos();
                     
                 } catch (e) {
                     console.error("Error cargando configuraciones:", e);
@@ -567,6 +570,23 @@ html
                 }
             }
             
+            async cargarExperienciaMonstruos() {
+                try {
+                    const response = await fetch(`${this.DATA_DIR}/encuentros/monstruos-exp.json`);
+                    if (!response.ok) throw new Error("No se pudo cargar monstruos-exp.json");
+                    
+                    this.monstruos_exp = await response.json();
+                } catch (e) {
+                    console.error("Error cargando experiencia de monstruos:", e);
+                    this.monstruos_exp = {monstruos: []};
+                }
+            }
+
+
+
+
+
+
             inicializarUI() {
                 // Cargar imágenes de botones
                 this.cargarImagenesBotones();
@@ -760,6 +780,7 @@ html
                 
                 this.mostrarMensajeBienvenida();
                 this.mostrarMensajeLog("\n=== ARENA REINICIADA ===", 'titulo');
+                this.exp_total_acumulada = 0;
             }
             
             async iniciarArena() {
@@ -864,8 +885,112 @@ html
                 
                 this.mostrarMensajeLog(`\n=== RONDA ${ronda}: ${tipo_ronda.toUpperCase()} ===`, 'ronda');
                 this.mostrarMensajeLog(`Tirada: ${tirada}`, 'enemigo');
-                this.mostrarEnemigos();
+                
+                // CAPTURAR LA EXPERIENCIA RETORNADA POR mostrarEnemigos()
+                const expTotal = this.mostrarEnemigos();
                 this.bonif_critico = false;
+                
+                // Eliminamos la línea redundante que mostraba la experiencia aquí
+                // if (expTotal > 0) {
+                //     this.exp_total_acumulada += expTotal;
+                //     this.mostrarMensajeLog(`Experiencia acumulada total: ${this.exp_total_acumulada}`, 'recompensa');
+                // }
+            }
+
+            // ... resto del código ...
+
+            mostrarEnemigos() {
+                if (!this.encuentro_actual) {
+                    this.mostrarMensajeLog("No hay enemigos en esta ronda", 'enemigo');
+                    return 0;
+                }
+                
+                // Procesar la expresión para obtener la cantidad real
+                const encuentroProcesado = this.procesarExpresionDados(this.encuentro_actual);
+                const gruposEnemigos = encuentroProcesado.split(" y ");
+                
+                this.mostrarMensajeLog("\nENEMIGOS EN LA ARENA:", 'enemigo');
+                
+                // Diccionario de iconos para tipos de enemigos
+                const iconos_enemigos = {
+                    "Hechicero": "🧙", "Escudo": "🛡️", "Espada": "⚔️", "Hacha": "⚔️",
+                    "Nigromante": "🧙", "Brujo": "🧙", "Chamán": "🧙", "Psíquico": "🧠",
+                    "Acechador": "👁️", "Lobo": "🐺", "Rata": "🐀", "Araña": "🕷️",
+                    "Ogro": "👹", "Orco": "👹", "Goblin": "👺", "Esqueleto": "💀",
+                    "Zombi": "🧟", "Demonio": "😈", "Dragón": "🐲", "Troll": "👹",
+                    "Gigante": "👣", "Sátiro": "🐐", "Gárgola": "🗿", "Hidra": "🐍",
+                    "Grifo": "🦅", "Wyvern": "🐉", "Vampiro": "🦇", "Momia": "🧟"
+                };
+                
+                let expTotal = 0;
+                let expDesglose = [];
+                
+                for (const grupo of gruposEnemigos) {
+                    const grupoTrim = grupo.trim();
+                    
+                    // Extraer cantidad y nombre - manejar tanto "3 Goblins" como "Goblins" (implícitamente 1)
+                    let cantidad = 1;
+                    let nombreCompleto = grupoTrim;
+                    
+                    // Buscar patrones como "2 Goblins" o "1d6 Goblins (ya procesado)"
+                    const matchCantidad = grupoTrim.match(/^(\d+)\s+(.+)$/);
+                    if (matchCantidad) {
+                        cantidad = parseInt(matchCantidad[1]);
+                        nombreCompleto = matchCantidad[2];
+                    }
+                    
+                    // Limpiar el nombre (eliminar información entre paréntesis)
+                    let nombreLimpio = nombreCompleto.replace(/\s*\(.*\)$/, '').trim();
+                    
+                    // BÚSQUEDA MEJORADA DE EXPERIENCIA
+                    const monstruoInfo = this.buscarMonstruoPorNombre(nombreLimpio);
+                    
+                    let expMonstruo = 0;
+                    if (monstruoInfo) {
+                        expMonstruo = monstruoInfo.exp * cantidad;
+                        expTotal += expMonstruo;
+                        expDesglose.push({
+                            nombre: nombreLimpio, 
+                            cantidad: cantidad,
+                            expIndividual: monstruoInfo.exp,
+                            expTotal: expMonstruo
+                        });
+                    } else {
+                        console.log("No se encontró EXP para:", nombreLimpio);
+                    }
+                    
+                    // Buscar icono
+                    let icono = "👹"; // Por defecto
+                    for (const [tipo, emoji] of Object.entries(iconos_enemigos)) {
+                        if (nombreLimpio.includes(tipo)) {
+                            icono = emoji;
+                            break;
+                        }
+                    }
+                    
+                    // Mostrar información del enemigo sin el detalle de EXP en esta línea
+                    this.mostrarMensajeLog(
+                        `${icono} ${cantidad} ${nombreLimpio}`, 
+                        'enemigo'
+                    );
+                }
+                
+                // Mostrar experiencia total si hay monstruos con EXP
+                if (expTotal > 0) {
+                    // Mostrar solo el total, no el desglose detallado
+                    //this.mostrarMensajeLog(`Experiencia del encuentro: ${expTotal}`, 'recompensa');
+                    
+                    // Actualizar la experiencia acumulada
+                    //this.exp_total_acumulada += expTotal;
+                    //this.mostrarMensajeLog(`Experiencia acumulada total: ${this.exp_total_acumulada}`, 'recompensa');
+                    
+                    // Guardar la EXP para usarla en las recompensas finales
+                    //this.exp_encuentro_actual = expTotal;
+                } else if (this.monstruos_exp.monstruos.length > 0) {
+                    this.mostrarMensajeLog("\nNo se pudo calcular la EXP de los monstruos", 'enemigo');
+                }
+                
+                return expTotal;
             }
 
             // Añadir nuevo método para mostrar descanso corto
@@ -917,11 +1042,13 @@ html
             }
             
             procesarExpresionDados(expresion, mostrarDetalle = true) {
-                const regex = /(\d+)d(\d+)([+-]\d+)?/g;
+                // Primero buscar expresiones con dados (1d6+2)
+                const regexDados = /(\d+)d(\d+)([+-]\d+)?/g;
                 let resultado = expresion;
                 let match;
                 
-                while ((match = regex.exec(expresion)) !== null) {
+                // Procesar todas las expresiones de dados
+                while ((match = regexDados.exec(expresion)) !== null) {
                     const cantidad = parseInt(match[1]);
                     const caras = parseInt(match[2]);
                     const modificador = match[3] ? parseInt(match[3]) : 0;
@@ -943,53 +1070,182 @@ html
                     resultado = resultado.replace(match[0], textoReemplazo);
                 }
                 
+                // Ahora buscar cantidades fijas (2 Goblins) y asegurarse de que se procesen
+                const regexCantidadFija = /^(\d+)\s+([^0-9].*)$/;
+                const matchFijo = resultado.match(regexCantidadFija);
+                
+                if (matchFijo && !resultado.includes('d')) {
+                    // Es una cantidad fija, asegurarnos de que se mantenga
+                    const cantidad = parseInt(matchFijo[1]);
+                    const nombre = matchFijo[2];
+                    resultado = `${cantidad} ${nombre}`;
+                }
+                
                 return resultado;
             }
 
-            // Modificar el método mostrarEnemigos() para usar la nueva función
+            // Modificar mostrarEnemigos para usar un enfoque más robusto
             mostrarEnemigos() {
                 if (!this.encuentro_actual) {
                     this.mostrarMensajeLog("No hay enemigos en esta ronda", 'enemigo');
-                    return;
+                    return 0;
                 }
                 
-                // Procesar la expresión de dados en el encuentro actual
+                // Procesar la expresión para obtener la cantidad real
                 const encuentroProcesado = this.procesarExpresionDados(this.encuentro_actual);
-                const enemigos = encuentroProcesado.split(" y ");
+                const gruposEnemigos = encuentroProcesado.split(" y ");
                 
                 this.mostrarMensajeLog("\nENEMIGOS EN LA ARENA:", 'enemigo');
                 
                 // Diccionario de iconos para tipos de enemigos
                 const iconos_enemigos = {
-                    "Hechicero": "🧙",
-                    "Escudo": "🛡️", 
-                    "Espada": "⚔️",
-                    "Hacha": "⚔️",
-                    "Nigromante": "🧙",
-                    "Brujo": "🧙",
-                    "Chaman": "🧙",
-                    "Psíquico": "🧠",
-                    "Acechador": "👁️"
+                    "Hechicero": "🧙", "Escudo": "🛡️", "Espada": "⚔️", "Hacha": "⚔️",
+                    "Nigromante": "🧙", "Brujo": "🧙", "Chamán": "🧙", "Psíquico": "🧠",
+                    "Acechador": "👁️", "Lobo": "🐺", "Rata": "🐀", "Araña": "🕷️",
+                    "Ogro": "👹", "Orco": "👹", "Goblin": "👺", "Esqueleto": "💀",
+                    "Zombi": "🧟", "Demonio": "😈", "Dragón": "🐲", "Troll": "👹",
+                    "Gigante": "👣", "Sátiro": "🐐", "Gárgola": "🗿", "Hidra": "🐍",
+                    "Grifo": "🦅", "Wyvern": "🐉", "Vampiro": "🦇", "Momia": "🧟"
                 };
                 
-                for (const enemigo of enemigos) {
-                    let icono = "🐺";  // Por defecto
+                let expTotal = 0;
+                let expDesglose = [];
+                
+                for (const grupo of gruposEnemigos) {
+                    const grupoTrim = grupo.trim();
+                    
+                    // Extraer cantidad y nombre - manejar tanto "3 Goblins" como "Goblins" (implícitamente 1)
+                    let cantidad = 1;
+                    let nombreCompleto = grupoTrim;
+                    
+                    // Buscar patrones como "2 Goblins" o "1d6 Goblins (ya procesado)"
+                    const matchCantidad = grupoTrim.match(/^(\d+)\s+(.+)$/);
+                    if (matchCantidad) {
+                        cantidad = parseInt(matchCantidad[1]);
+                        nombreCompleto = matchCantidad[2];
+                    }
+                    
+                    // Limpiar el nombre (eliminar información entre paréntesis)
+                    let nombreLimpio = nombreCompleto.replace(/\s*\(.*\)$/, '').trim();
+                    
+                    // BÚSQUEDA MEJORADA DE EXPERIENCIA
+                    const monstruoInfo = this.buscarMonstruoPorNombre(nombreLimpio);
+                    
+                    let expMonstruo = 0;
+                    if (monstruoInfo) {
+                        expMonstruo = monstruoInfo.exp * cantidad;
+                        expTotal += expMonstruo;
+                        expDesglose.push({
+                            nombre: nombreLimpio, 
+                            cantidad: cantidad,
+                            expIndividual: monstruoInfo.exp,
+                            expTotal: expMonstruo
+                        });
+                    } else {
+                        console.log("No se encontró EXP para:", nombreLimpio);
+                    }
+                    
+                    // Buscar icono
+                    let icono = "👹"; // Por defecto
                     for (const [tipo, emoji] of Object.entries(iconos_enemigos)) {
-                        if (enemigo.includes(tipo)) {
+                        if (nombreLimpio.includes(tipo)) {
                             icono = emoji;
                             break;
                         }
                     }
                     
-                    this.mostrarMensajeLog(`${icono} ${enemigo.trim()}`, 'enemigo');
+                    // Mostrar información del enemigo con su experiencia individual
+                    this.mostrarMensajeLog(
+                        `${icono} ${cantidad} ${nombreLimpio}${monstruoInfo ? ` (EXP: ${expMonstruo} = ${cantidad} × ${monstruoInfo.exp})` : ''}`, 
+                        'enemigo'
+                    );
                 }
+                
+                // Eliminado: No mostrar la experiencia total del encuentro aquí
+                // if (expTotal > 0) {
+                //     this.mostrarMensajeLog(`\nExperiencia total del encuentro: ${expTotal}`, 'recompensa');
+                //     
+                //     // Mostrar desglose detallado
+                //     if (expDesglose.length > 0) {
+                //         expDesglose.forEach(item => {
+                //             this.mostrarMensajeLog(`• ${item.cantidad} ${item.nombre}: ${item.expTotal} EXP (${item.cantidad} × ${item.expIndividual})`, 
+                //                 'lista'
+                //             );
+                //         });
+                //     }
+                //     
+                //     this.exp_total_acumulada += expTotal;
+                //     
+                //     // Guardar la EXP para usarla en las recompensas finales
+                //     this.exp_encuentro_actual = expTotal;
+                // } else if (this.monstruos_exp.monstruos.length > 0) {
+                //     this.mostrarMensajeLog("\nNo se pudo calcular la EXP de los monstruos", 'enemigo');
+                // }
+                
+                // En su lugar, solo actualizamos la experiencia acumulada sin mostrar mensaje
+                if (expTotal > 0) {
+                    this.exp_total_acumulada += expTotal;
+                    this.exp_encuentro_actual = expTotal;
+                }
+                
+                return expTotal;
+            }
+
+            // Añadir nueva función para búsqueda flexible de monstruos
+            buscarMonstruoPorNombre(nombreBuscado) {
+                if (!this.monstruos_exp.monstruos || this.monstruos_exp.monstruos.length === 0) {
+                    return null;
+                }
+                
+                const nombreLimpio = nombreBuscado.trim().toLowerCase();
+                
+                // Primero: búsqueda exacta
+                let monstruo = this.monstruos_exp.monstruos.find(m => 
+                    m.nombre.toLowerCase() === nombreLimpio
+                );
+                
+                if (monstruo) return monstruo;
+                
+                // Segundo: búsqueda en nombres alternativos
+                monstruo = this.monstruos_exp.monstruos.find(m => 
+                    m.nombres_alternativos && 
+                    m.nombres_alternativos.some(alt => alt.toLowerCase() === nombreLimpio)
+                );
+                
+                if (monstruo) return monstruo;
+                
+                // Tercero: búsqueda flexible (manejar plural/singular)
+                // Si el nombre buscado termina con "s", intentar con singular
+                if (nombreLimpio.endsWith('s')) {
+                    const nombreSingular = nombreLimpio.slice(0, -1);
+                    monstruo = this.monstruos_exp.monstruos.find(m => 
+                        m.nombre.toLowerCase() === nombreSingular
+                    );
+                    
+                    if (monstruo) return monstruo;
+                }
+                
+                // Cuarto: si el nombre buscado no termina con "s", intentar con plural
+                if (!nombreLimpio.endsWith('s')) {
+                    const nombrePlural = nombreLimpio + 's';
+                    monstruo = this.monstruos_exp.monstruos.find(m => 
+                        m.nombre.toLowerCase() === nombrePlural
+                    );
+                    
+                    if (monstruo) return monstruo;
+                }
+                
+                // Quinto: búsqueda por contenido (si el nombre del monstruo está contenido en el nombre buscado o viceversa)
+                monstruo = this.monstruos_exp.monstruos.find(m => 
+                    nombreLimpio.includes(m.nombre.toLowerCase()) || 
+                    m.nombre.toLowerCase().includes(nombreLimpio)
+                );
+                
+                return monstruo || null;
             }
             
             evaluarAccion(tipo_accion) {
-                // Deshabilitar ambos botones después de usar uno
-                //document.getElementById('btn-heroico').disabled = true;
-                //document.getElementById('btn-deshonroso').disabled = true;
-                
+               
                 if (tipo_accion === "heroica") {
                     this.acciones_heroicas++;
                     this.actualizarEstados("heroica");
@@ -1058,6 +1314,7 @@ html
             }
             
             siguienteRonda() {
+                
                 if (this.ronda_actual >= 3) {
                     this.finalizarArena();
                     return;
@@ -1090,7 +1347,7 @@ html
                 document.getElementById('btn-deshonroso').disabled = true;
                 document.getElementById('btn-iniciar').disabled = false;
             }
-            
+
             procesarRecompensas() {
                 const nivel_key = `nivel_${this.heroes_nivel}`;
                 const recompensa = this.recompensas[nivel_key];
@@ -1100,9 +1357,9 @@ html
                     return;
                 }
                 
-                // Calcular recompensa base
+                // Calcular recompensa base (añadiendo la EXP de TODOS los monstruos de todas las rondas)
                 let monedas_base = recompensa.monedas || 0;
-                let experiencia_base = recompensa.experiencia || 0;
+                let experiencia_base = (recompensa.experiencia || 0) + this.exp_total_acumulada;
                 let tesoros = recompensa.tesoros || [];
                 
                 // Aplicar multiplicador por apuesta si existe
@@ -1129,20 +1386,36 @@ html
                 
                 // Mostrar log de recompensas si hay apuesta
                 if (this.apuesta_activa) {
-                    this.mostrarLogRecompensas(monedas_base, monedas_final, multiplicador, ganancia_apuesta, tesoros);
+                    this.mostrarLogRecompensas(
+                        monedas_base, 
+                        monedas_final, 
+                        multiplicador, 
+                        ganancia_apuesta, 
+                        tesoros, 
+                        experiencia_final,
+                        this.exp_total_acumulada  // Cambiado: usar la experiencia acumulada de todas las rondas
+                    );
                 }
                 
                 // Procesar descanso
                 this.procesarDescanso();
             }
+           
 
-            mostrarLogRecompensas(monedas_base, monedas_final, multiplicador, ganancia_apuesta, tesoros) {
+            mostrarLogRecompensas(monedas_base, monedas_final, multiplicador, ganancia_apuesta, tesoros, experiencia_base, exp_monstruos) {
                 this.mostrarMensajeLog("\nDESGLOSE DE RECOMPENSA:", 'titulo');
                 this.mostrarMensajeLog(`Apuesta inicial: ${this.apuesta_monedas} monedas`, 'recompensa');
                 this.mostrarMensajeLog(`Recompensa base: ${monedas_base} monedas`, 'recompensa');
+                
+                if (exp_monstruos > 0) {
+                    // Mostrar experiencia total de todos los monstruos
+                    this.mostrarMensajeLog(`Experiencia total de monstruos: +${this.exp_total_acumulada} EXP`, 'recompensa');
+                    this.mostrarMensajeLog(`Experiencia base: +${experiencia_base - this.exp_total_acumulada} EXP`, 'recompensa');
+                }
+                
                 this.mostrarMensajeLog(`Multiplicador: x${multiplicador}`, 'recompensa');
                 this.mostrarMensajeLog(`Ganancia por apuesta: ${ganancia_apuesta} monedas`, 'recompensa');
-                this.mostrarMensajeLog(`TOTAL: ${monedas_final} monedas`, 'recompensa');
+                this.mostrarMensajeLog(`TOTAL: ${monedas_final} monedas y ${experiencia_base} EXP`, 'recompensa');
                 
                 // Mostrar tesoros integrados en el desglose
                 tesoros.forEach(tesoro => {
