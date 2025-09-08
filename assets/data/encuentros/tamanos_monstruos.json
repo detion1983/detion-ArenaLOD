@@ -95,6 +95,18 @@
     "Esfinge": "ENORME",
     "Demonio Hinchado": "ENORME",
     "Diablillo de la Plaga": "NORMAL",
-    "Dragón": "EXTRAENORME"
+    "Dragón": "EXTRAENORME",
+    "Escorpión Gigante": "NORMAL",
+    "Golem de Piedra": "ENORME",
+    "Hombre Bestia Jefe": "NORMAL",
+    "Lazarillo Acechador": "NORMAL",
+    "Lizarrico": "NORMAL",
+    "Minerva": "NORMAL",
+    "Momia Esquelética": "NORMAL",
+    "Oso Cavernario": "NORMAL",
+    "Poyter": "NORMAL",
+    "Rata Guerrera": "NORMAL",
+    "Sátiro Jefe": "NORMAL",
+    "Zombi Gigante": "ENORME"
   }
 }
