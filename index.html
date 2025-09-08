@@ -251,7 +251,6 @@
                     while (cell.firstChild) cell.removeChild(cell.firstChild);
                 });
             }
-            
             mostrarGridConEnemigos(enemigos) {
                 this.limpiarGrid();
                 this.enemigosProcesados = enemigos;
@@ -269,7 +268,50 @@
                     }
                 };
                 
-                const posicionesDisponibles = Array.from({length: 48}, (_, i) => i);
+                // Función para verificar si un área está disponible
+                const areaDisponible = (inicioIndex, ancho, alto) => {
+                    const inicioFila = Math.floor(inicioIndex / 8);
+                    const inicioColumna = inicioIndex % 8;
+                    
+                    // Verificar que no se sale de los límites
+                    if (inicioFila + alto > 6 || inicioColumna + ancho > 8) {
+                        return false;
+                    }
+                    
+                    // Verificar que todas las celdas del área estén disponibles
+                    for (let fila = 0; fila < alto; fila++) {
+                        for (let columna = 0; columna < ancho; columna++) {
+                            const celdaIndex = (inicioFila + fila) * 8 + (inicioColumna + columna);
+                            if (!posicionesDisponibles.includes(celdaIndex)) {
+                                return false;
+                            }
+                        }
+                    }
+                    
+                    return true;
+                };
+                
+                // Función para reservar un área
+                const reservarArea = (inicioIndex, ancho, alto) => {
+                    const inicioFila = Math.floor(inicioIndex / 8);
+                    const inicioColumna = inicioIndex % 8;
+                    const celdasReservadas = [];
+                    
+                    for (let fila = 0; fila < alto; fila++) {
+                        for (let columna = 0; columna < ancho; columna++) {
+                            const celdaIndex = (inicioFila + fila) * 8 + (inicioColumna + columna);
+                            const indexEnArray = posicionesDisponibles.indexOf(celdaIndex);
+                            if (indexEnArray !== -1) {
+                                posicionesDisponibles.splice(indexEnArray, 1);
+                                celdasReservadas.push(celdaIndex);
+                            }
+                        }
+                    }
+                    
+                    return celdasReservadas;
+                };
+                
+                let posicionesDisponibles = Array.from({length: 48}, (_, i) => i);
                 
                 enemigos.forEach(enemigo => {
                     if (posicionesDisponibles.length === 0) return;
@@ -284,26 +326,31 @@
                         let intentos = 0;
                         let posIndex, cellIndex;
                         
-                        while (!posicionValida && intentos < 50 && posicionesDisponibles.length > 0) {
+                        // Buscar una posición válida
+                        while (!posicionValida && intentos < 100 && posicionesDisponibles.length > 0) {
                             posIndex = Math.floor(Math.random() * posicionesDisponibles.length);
                             cellIndex = posicionesDisponibles[posIndex];
                             
-                            const inicioFila = Math.floor(cellIndex / 8);
-                            const inicioColumna = cellIndex % 8;
+                            // Verificar si el área está disponible
+                            posicionValida = areaDisponible(cellIndex, dimensiones.ancho, dimensiones.alto);
                             
-                            if (inicioFila + dimensiones.alto <= 6 && inicioColumna + dimensiones.ancho <= 8) {
-                                posicionValida = true;
-                            } else {
+                            if (!posicionValida) {
                                 intentos++;
-                                posicionesDisponibles.splice(posIndex, 1);
+                                // No removemos la celda inmediatamente, solo incrementamos intentos
                             }
                         }
                         
-                        if (!posicionValida) continue;
+                        if (!posicionValida) {
+                            // Si no encontramos posición después de muchos intentos, saltamos este enemigo
+                            console.warn(`No se pudo colocar al enemigo: ${enemigo.nombre}`);
+                            continue;
+                        }
                         
-                        const inicioIndex = posicionesDisponibles.splice(posIndex, 1)[0];
-                        const inicioFila = Math.floor(inicioIndex / 8);
-                        const inicioColumna = inicioIndex % 8;
+                        // Reservar el área completa
+                        const celdasReservadas = reservarArea(cellIndex, dimensiones.ancho, dimensiones.alto);
+                        
+                        const inicioFila = Math.floor(cellIndex / 8);
+                        const inicioColumna = cellIndex % 8;
                         
                         const token = document.createElement('div');
                         token.className = 'enemy-token';
@@ -332,6 +379,7 @@
                 document.getElementById('grid-container').classList.add('visible');
                 this.gridVisible = true;
             }
+           
 
             obtenerTipoEnemigo(nombre) {
                 nombre = nombre.toLowerCase();
@@ -845,13 +893,11 @@
             buscarMonstruoPorNombre(nombreBuscado) {
                 if (!this.monstruos_exp.monstruos || this.monstruos_exp.monstruos.length === 0) return null;
                 
-                // Limpiar y normalizar el nombre buscado
                 const nombreLimpio = nombreBuscado.trim().toLowerCase()
                     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                     .replace(/[^a-z0-9\s]/g, "")
                     .replace(/\s+/g, ' ');
                 
-                // Primero buscar coincidencia exacta
                 let monstruo = this.monstruos_exp.monstruos.find(m => {
                     const nombreMonstruo = m.nombre.toLowerCase()
                         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -862,7 +908,6 @@
                 
                 if (monstruo) return monstruo;
                 
-                // Si no hay coincidencia exacta, buscar por inclusión
                 monstruo = this.monstruos_exp.monstruos.find(m => {
                     const nombreMonstruo = m.nombre.toLowerCase()
                         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -874,7 +919,6 @@
                 
                 if (monstruo) return monstruo;
                 
-                // Si aún no se encuentra, buscar por palabras clave más específicas
                 const palabrasClave = {
                     'goblin': 'Goblin', 'zombi': 'Zombi', 'lobo': 'Lobo Gigante', 'bandido': 'Bandido',
                     'brujo': 'Brujo', 'esqueleto': 'Esqueleto', 'orco': 'Orco', 'sátiro': 'Sátiro',
@@ -885,16 +929,13 @@
                     'ettin': 'Ettin', 'espectro': 'Espectro', 'gárgola': 'Gárgola', 'wyvern': 'Wyvern',
                     'demonio': 'Demonio de Sangre', 'guardian': 'Guardián de la Tumba', 'psíquico': 'Psíquico',
                     'esfinge': 'Esfinge', 'naga': 'Naga', 'scorpion': 'Escorpión Gigante', 'vampiro': 'Vampiro',
-                    'hidra': 'Hidra', 'gigante': 'Gigante', 'dragón': 'Dragón', 'grifo': 'Grifo', 'raptor': 'Raptor'
+                    'hidra': 'Hidra', 'gigante': 'Gigante', 'dragón': 'Dragón'
                 };
                 
                 for (const [clave, valor] of Object.entries(palabrasClave)) {
-                    if (nombreLimpio.includes(clave)) {
-                        return this.monstruos_exp.monstruos.find(m => m.nombre === valor);
-                    }
+                    if (nombreLimpio.includes(clave)) return this.monstruos_exp.monstruos.find(m => m.nombre === valor);
                 }
                 
-                // Si todo falla, devolver null
                 return null;
             }
             
