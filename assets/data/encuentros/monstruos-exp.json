@@ -499,6 +499,56 @@
       "id": 100,
       "nombre": "Caballero Caído",
       "exp": 350
+    },
+    {
+      "id": 101,
+      "nombre": "Raptor",
+      "exp": 130
+    },
+    {
+      "id": 102,
+      "nombre": "Lagarto",
+      "exp": 90
+    },
+    {
+      "id": 103,
+      "nombre": "Lagarto Asesino",
+      "exp": 110
+    },
+    {
+      "id": 104,
+      "nombre": "Renacuajo",
+      "exp": 70
+    },
+    {
+      "id": 105,
+      "nombre": "Saurio Jefe de Guerra",
+      "exp": 200
+    },
+    {
+      "id": 106,
+      "nombre": "Guardia Hom Bestia",
+      "exp": 120
+    },
+    {
+      "id": 107,
+      "nombre": "Minotauro Esqueleto",
+      "exp": 400
+    },
+    {
+      "id": 108,
+      "nombre": "Ogro Zombi",
+      "exp": 180
+    },
+    {
+      "id": 109,
+      "nombre": "Psíquico",
+      "exp": 400
+    },
+    {
+      "id": 110,
+      "nombre": "Murciélago Gigante",
+      "exp": 40
     }
   ]
 }
