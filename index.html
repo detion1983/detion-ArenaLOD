@@ -759,8 +759,16 @@
                     const grupoTrim = grupo.trim();
                     let cantidad = 1;
                     let nombreCompleto = grupoTrim;
+                    let equipamiento = "";
                     
-                    const matchCantidad = grupoTrim.match(/^(\d+)\s+(.+)$/);
+                    // Extraer equipamiento (texto entre paréntesis)
+                    const equipamientoMatch = grupoTrim.match(/\((.*?)\)/);
+                    if (equipamientoMatch) {
+                        equipamiento = equipamientoMatch[1];
+                        nombreCompleto = grupoTrim.replace(/\s*\(.*?\)/, '');
+                    }
+                    
+                    const matchCantidad = nombreCompleto.match(/^(\d+)\s+(.+)$/);
                     if (matchCantidad) {
                         cantidad = parseInt(matchCantidad[1]);
                         nombreCompleto = matchCantidad[2];
@@ -794,9 +802,17 @@
                     }
                     
                     if (monstruoInfo) {
-                        this.mostrarMensajeLog(`${icono} ${cantidad} ${nombreLimpio} (EXP: ${expMonstruo} = ${cantidad} × ${monstruoInfo.exp})`, 'enemigo');
+                        let mensajeEnemigo = `${icono} ${cantidad} ${nombreLimpio} (EXP: ${expMonstruo} = ${cantidad} × ${monstruoInfo.exp})`;
+                        if (equipamiento) {
+                            mensajeEnemigo += ` - Equipamiento: ${equipamiento}`;
+                        }
+                        this.mostrarMensajeLog(mensajeEnemigo, 'enemigo');
                     } else {
-                        this.mostrarMensajeLog(`${icono} ${cantidad} ${nombreLimpio} (EXP: ${expMonstruo})`, 'enemigo');
+                        let mensajeEnemigo = `${icono} ${cantidad} ${nombreLimpio} (EXP: ${expMonstruo})`;
+                        if (equipamiento) {
+                            mensajeEnemigo += ` - Equipamiento: ${equipamiento}`;
+                        }
+                        this.mostrarMensajeLog(mensajeEnemigo, 'enemigo');
                     }
                 }
                 
@@ -809,6 +825,7 @@
                 
                 return expTotal;
             }
+          
 
             mostrarDescansoCorto() {
                 const descanso = this.descansos["corto"];
