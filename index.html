@@ -397,6 +397,7 @@
                 this.gridVisible = true;
             }
 
+            
             obtenerImagenToken(nombre) {
                 if (!this.monstruos_imagenes || !this.monstruos_imagenes.mapeo_imagenes) {
                     return `${this.TOKENS_DIR}/default.png`;
@@ -425,10 +426,15 @@
                     nombreLimpio = nombreLimpio.slice(0, -1);
                 }
                 
-                // Buscar coincidencia en el mapeo
-                for (const [clave, valor] of Object.entries(this.monstruos_imagenes.mapeo_imagenes)) {
+                // Obtener todas las claves y ordenarlas de más largas a más cortas
+                // Esto asegura que "goblin chamán" se busque antes que "goblin"
+                const clavesOrdenadas = Object.keys(this.monstruos_imagenes.mapeo_imagenes)
+                    .sort((a, b) => b.length - a.length);
+                
+                // Buscar coincidencia en el mapeo (empezando por las claves más largas)
+                for (const clave of clavesOrdenadas) {
                     if (nombreLimpio.includes(clave)) {
-                        return `${this.TOKENS_DIR}/${valor}`;
+                        return `${this.TOKENS_DIR}/${this.monstruos_imagenes.mapeo_imagenes[clave]}`;
                     }
                 }
                 
