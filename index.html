@@ -43,9 +43,9 @@
         #grid-content { position: relative; width: 100%; height: 100%; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(6, 1fr); gap: 2px; padding: 1vmin; }
         #grid-container.visible { opacity: 1; visibility: visible; }
         .grid-cell { background-color: rgba(139, 69, 19, 0.3); border: 1px solid rgba(139, 69, 19, 0.5); border-radius: 3px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .enemy-token.normal { width: 80%; height: 80%; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8vmin; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; box-shadow: 0 0 5px rgba(0, 0, 0, 0.7); animation: appear 0.5s ease-out; cursor: pointer; transition: transform 0.2s; background-size:contain; background-position: center; background-repeat: no-repeat; border: 2px solid #8B4513; }
-        .enemy-token.enorme { font-size: 1.4vmin; z-index: 3;border: 3px solid #8B4513;box-shadow: 0 0 8px rgba(0, 0, 0, 0.9);background-size: contain; background-position: center; background-repeat: no-repeat;}
-        .enemy-token.extraenorme { font-size: 1.2vmin; z-index: 4; box-shadow: 0 0 10px rgba(0, 0, 0, 1); background-size: containt; background-position: center; background-repeat: no-repeat;}
+        .enemy-token.normal { width: 80%; height: 80%; border-radius: 5px; display: flex; align-items: end; justify-content: center; font-size: 1.8vmin; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; box-shadow: 0 0 5px rgba(0, 0, 0, 0.7); animation: appear 0.5s ease-out; cursor: pointer; transition: transform 0.2s; background-size:contain; background-position: center; background-repeat: no-repeat; border: 2px solid #8B4513; }
+        .enemy-token.enorme { font-size: 1.4vmin; z-index: 3;display: flex; align-items: end;border: 3px solid #8B4513;box-shadow: 0 0 8px rgba(0, 0, 0, 0.9);background-size: contain; background-position: center; background-repeat: no-repeat;}
+        .enemy-token.extraenorme { font-size: 1.2vmin; z-index: 4;display: flex; align-items: end; box-shadow: 0 0 10px rgba(0, 0, 0, 1); background-size: containt; background-position: center; background-repeat: no-repeat;}
         .enemy-token:hover { transform: scale(1.1); }
         @keyframes appear { from { opacity: 0; transform: scale(0) rotate(-10deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
         #close-grid { position: absolute; top: -15px; right: -15px; width: 30px; height: 30px; border-radius: 50%; background-color: #8B0000; color: white; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; z-index: 101; box-shadow: 0 0 5px rgba(0, 0, 0, 0.7); }
@@ -1041,27 +1041,40 @@
                     .replace(/[^a-z0-9\s]/g, "")
                     .replace(/\s+/g, ' ');
                 
+                // PRIMERA BÚSQUEDA: Coincidencia exacta con cualquier forma del nombre
                 let monstruo = this.monstruos_exp.monstruos.find(m => {
-                    const nombreMonstruo = m.nombre.toLowerCase()
-                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                        .replace(/[^a-z0-9\s]/g, "")
-                        .replace(/\s+/g, ' ');
-                    return nombreMonstruo === nombreLimpio;
-                });
-                
-                if (monstruo) return monstruo;
-                
-                monstruo = this.monstruos_exp.monstruos.find(m => {
-                    const nombreMonstruo = m.nombre.toLowerCase()
-                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                        .replace(/[^a-z0-9\s]/g, "")
-                        .replace(/\s+/g, ' ');
+                    // Modificación: ahora m.nombre puede ser string o array
+                    const nombresMonstruo = Array.isArray(m.nombre) ? m.nombre : [m.nombre];
                     
-                    return nombreLimpio.includes(nombreMonstruo) || nombreMonstruo.includes(nombreLimpio);
+                    return nombresMonstruo.some(nombre => {
+                        const nombreMonstruoLimpio = nombre.toLowerCase()
+                            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                            .replace(/[^a-z0-9\s]/g, "")
+                            .replace(/\s+/g, ' ');
+                        return nombreMonstruoLimpio === nombreLimpio;
+                    });
                 });
                 
                 if (monstruo) return monstruo;
                 
+                // SEGUNDA BÚSQUEDA: Coincidencia parcial (incluye o está incluido)
+                monstruo = this.monstruos_exp.monstruos.find(m => {
+                    const nombresMonstruo = Array.isArray(m.nombre) ? m.nombre : [m.nombre];
+                    
+                    return nombresMonstruo.some(nombre => {
+                        const nombreMonstruoLimpio = nombre.toLowerCase()
+                            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                            .replace(/[^a-z0-9\s]/g, "")
+                            .replace(/\s+/g, ' ');
+                        
+                        return nombreLimpio.includes(nombreMonstruoLimpio) || 
+                            nombreMonstruoLimpio.includes(nombreLimpio);
+                    });
+                });
+                
+                if (monstruo) return monstruo;
+                
+                // TERCERA BÚSQUEDA: Por palabras clave (tu sistema de respaldo)
                 const palabrasClave = {
                     'goblin': 'Goblin', 'zombi': 'Zombi', 'lobo': 'Lobo Gigante', 'bandido': 'Bandido',
                     'brujo': 'Brujo', 'esqueleto': 'Esqueleto', 'orco': 'Orco', 'sátiro': 'Sátiro',
@@ -1076,12 +1089,17 @@
                 };
                 
                 for (const [clave, valor] of Object.entries(palabrasClave)) {
-                    if (nombreLimpio.includes(clave)) return this.monstruos_exp.monstruos.find(m => m.nombre === valor);
+                    if (nombreLimpio.includes(clave)) {
+                        return this.monstruos_exp.monstruos.find(m => {
+                            const nombresMonstruo = Array.isArray(m.nombre) ? m.nombre : [m.nombre];
+                            return nombresMonstruo.includes(valor);
+                        });
+                    }
                 }
                 
                 return null;
             }
-            
+
             evaluarAccion(tipo_accion) {
                 if (tipo_accion === "heroica") {
                     this.acciones_heroicas++;
