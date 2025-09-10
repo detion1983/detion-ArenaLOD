@@ -43,13 +43,13 @@
         #grid-content { position: relative; width: 100%; height: 100%; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(6, 1fr); gap: 2px; padding: 1vmin; }
         #grid-container.visible { opacity: 1; visibility: visible; }
         .grid-cell { background-color: rgba(139, 69, 19, 0.3); border: 1px solid rgba(139, 69, 19, 0.5); border-radius: 3px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .enemy-token.normal { width: 80%; height: 80%; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8vmin; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; box-shadow: 0 0 5px rgba(0, 0, 0, 0.7); animation: appear 0.5s ease-out; cursor: pointer; transition: transform 0.2s; }
-        .enemy-token.enorme { font-size: 1.4vmin; z-index: 3; }
-        .enemy-token.extraenorme { font-size: 1.2vmin; z-index: 4; }
+        .enemy-token.normal { width: 80%; height: 80%; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.8vmin; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; box-shadow: 0 0 5px rgba(0, 0, 0, 0.7); animation: appear 0.5s ease-out; cursor: pointer; transition: transform 0.2s; background-size:contain; background-position: center; background-repeat: no-repeat; border: 2px solid #8B4513; }
+        .enemy-token.enorme { font-size: 1.4vmin; z-index: 3;border: 3px solid #8B4513;box-shadow: 0 0 8px rgba(0, 0, 0, 0.9);background-size: contain; background-position: center; background-repeat: no-repeat;}
+        .enemy-token.extraenorme { font-size: 1.2vmin; z-index: 4; box-shadow: 0 0 10px rgba(0, 0, 0, 1); background-size: containt; background-position: center; background-repeat: no-repeat;}
         .enemy-token:hover { transform: scale(1.1); }
         @keyframes appear { from { opacity: 0; transform: scale(0) rotate(-10deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
         #close-grid { position: absolute; top: -15px; right: -15px; width: 30px; height: 30px; border-radius: 50%; background-color: #8B0000; color: white; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; z-index: 101; box-shadow: 0 0 5px rgba(0, 0, 0, 0.7); }
-        #close-grid:hover { background-color: #FF0000; }
+        #close-grid:hover { background-color: #FF0000; border: 4px solid #8B4513; }
         @media (max-width: 1200px) { #event-log { font-size: 3vw; } .config-label { font-size: 3vw; } }
         @media (max-width: 768px) { 
             #titulo-container { width: 95vw; height: 45.6vw; transform: translate(-50%, calc(-50% - 70%)); }
@@ -123,6 +123,7 @@
                 this.IMAGES_DIR = `${this.BASE_DIR}/assets/imagenes`;
                 this.AUDIO_DIR = `${this.BASE_DIR}/assets/audio`;
                 this.DATA_DIR = `${this.BASE_DIR}/assets/data`;
+                this.TOKENS_DIR = `${this.BASE_DIR}/assets/tokens`; // Nueva ruta para tokens
                 
                 this.ui_config = null;
                 this.estados_config = null;
@@ -251,6 +252,8 @@
                     while (cell.firstChild) cell.removeChild(cell.firstChild);
                 });
             }
+            
+            // En la función mostrarGridConEnemigos, mejorar el algoritmo de colocación:
             mostrarGridConEnemigos(enemigos) {
                 this.limpiarGrid();
                 this.enemigosProcesados = enemigos;
@@ -313,6 +316,15 @@
                 
                 let posicionesDisponibles = Array.from({length: 48}, (_, i) => i);
                 
+                // Ordenar enemigos por tamaño (los más grandes primero)
+                enemigos.sort((a, b) => {
+                    const tamanoA = this.obtenerTamanoMonstruo(a.nombre);
+                    const tamanoB = this.obtenerTamanoMonstruo(b.nombre);
+                    
+                    const prioridad = { "EXTRAENORME": 3, "ENORME": 2, "NORMAL": 1 };
+                    return prioridad[tamanoB] - prioridad[tamanoA];
+                });
+                
                 enemigos.forEach(enemigo => {
                     if (posicionesDisponibles.length === 0) return;
                     
@@ -336,7 +348,11 @@
                             
                             if (!posicionValida) {
                                 intentos++;
-                                // No removemos la celda inmediatamente, solo incrementamos intentos
+                                // Remover esta celda de las disponibles si no es válida
+                                const indexToRemove = posicionesDisponibles.indexOf(cellIndex);
+                                if (indexToRemove !== -1) {
+                                    posicionesDisponibles.splice(indexToRemove, 1);
+                                }
                             }
                         }
                         
@@ -356,8 +372,9 @@
                         token.className = 'enemy-token';
                         token.classList.add(tamano.toLowerCase());
                         
-                        const tipo = this.obtenerTipoEnemigo(enemigo.nombre);
-                        token.style.backgroundColor = this.obtenerColorPorTipo(tipo);
+                        // Obtener y establecer la imagen del token
+                        const imagenToken = this.obtenerImagenToken(enemigo.nombre);
+                        token.style.backgroundImage = `url('${imagenToken}')`;
                         
                         const cellWidth = 100 / 8;
                         const cellHeight = 100 / 6;
@@ -379,7 +396,45 @@
                 document.getElementById('grid-container').classList.add('visible');
                 this.gridVisible = true;
             }
-           
+
+            obtenerImagenToken(nombre) {
+                if (!this.monstruos_imagenes || !this.monstruos_imagenes.mapeo_imagenes) {
+                    return `${this.TOKENS_DIR}/default.png`;
+                }
+                
+                // Primero, convertir a minúsculas y limpiar el nombre
+                let nombreLimpio = nombre.toLowerCase().trim();
+                
+                // Si el nombre contiene un número al inicio, eliminarlo (ej: "2 lobos temibles" -> "lobos temibles")
+                nombreLimpio = nombreLimpio.replace(/^\d+\s+/, '');
+                
+                // Buscar si el nombre está en el diccionario de plurales
+                if (this.monstruos_imagenes.plurales) {
+                    for (const [plural, singular] of Object.entries(this.monstruos_imagenes.plurales)) {
+                        if (nombreLimpio === plural) {
+                            nombreLimpio = singular;
+                            break;
+                        }
+                    }
+                }
+                
+                // Si no se encontró en el diccionario, aplicar reglas generales
+                if (nombreLimpio.endsWith('es')) {
+                    nombreLimpio = nombreLimpio.slice(0, -2);
+                } else if (nombreLimpio.endsWith('s')) {
+                    nombreLimpio = nombreLimpio.slice(0, -1);
+                }
+                
+                // Buscar coincidencia en el mapeo
+                for (const [clave, valor] of Object.entries(this.monstruos_imagenes.mapeo_imagenes)) {
+                    if (nombreLimpio.includes(clave)) {
+                        return `${this.TOKENS_DIR}/${valor}`;
+                    }
+                }
+                
+                // Imagen por defecto si no se encuentra coincidencia
+                return `${this.TOKENS_DIR}/default.png`;
+            }
 
             obtenerTipoEnemigo(nombre) {
                 nombre = nombre.toLowerCase();
@@ -417,12 +472,13 @@
                 if (window.innerWidth > 1000) eventLog.style.fontSize = '14px';
             }
             
-            async cargarConfiguraciones() {
+            async guraciones() {
                 try {
                     this.BASE_DIR = window.location.href.replace(/\/[^\/]*$/, '');
                     this.IMAGES_DIR = `${this.BASE_DIR}/assets/imagenes`;
                     this.AUDIO_DIR = `${this.BASE_DIR}/assets/audio`;
                     this.DATA_DIR = `${this.BASE_DIR}/assets/data`;
+                    this.TOKENS_DIR = `${this.BASE_DIR}/assets/tokens`;
                     
                     const configFiles = ['ui_config.json', 'estados.json', 'descansos.json', 'recompensas.json', 'comportamiento.json'];
                     
@@ -451,7 +507,7 @@
                     this.comportamiento = comportamientoConfig || {};
                     
                     await this.cargarEncuentros();
-                    await this.cargarExperienciaMonstruos();
+                    //await this.cargarExperienciaMonstruos();
                     
                 } catch (e) {
                     console.error("Error cargando configuraciones:", e);
@@ -464,6 +520,86 @@
                     this.monstruos_exp = {monstruos: []};
                 }
             }
+
+
+            async cargarConfiguraciones() {
+                try {
+                    this.BASE_DIR = window.location.href.replace(/\/[^\/]*$/, '');
+                    this.IMAGES_DIR = `${this.BASE_DIR}/assets/imagenes`;
+                    this.AUDIO_DIR = `${this.BASE_DIR}/assets/audio`;
+                    this.DATA_DIR = `${this.BASE_DIR}/assets/data`;
+                    this.TOKENS_DIR = `${this.BASE_DIR}/assets/tokens`;
+                    
+                    const configFiles = ['ui_config.json', 'estados.json', 'descansos.json', 'recompensas.json', 'comportamiento.json'];
+                    
+                    // Cargar archivos de configuración principales
+                    const [uiConfig, estadosConfig, descansosConfig, recompensasConfig, comportamientoConfig] = await Promise.all(
+                        configFiles.map(file => 
+                            fetch(`${this.DATA_DIR}/${file}`)
+                                .then(response => {
+                                    if (!response.ok) throw new Error(`No se pudo cargar ${file}`);
+                                    return response.json();
+                                })
+                                .catch(error => {
+                                    console.error(`Error cargando ${file}:`, error);
+                                    return {};
+                                })
+                        )
+                    );
+                    
+                    // Cargar archivos específicos de monstruos
+                    const [tamanosResponse, monstruosExpResponse, monstruosImagenesResponse] = await Promise.all([
+                        fetch(`${this.DATA_DIR}/encuentros/tamanos_monstruos.json`),
+                        fetch(`${this.DATA_DIR}/encuentros/monstruos-exp.json`),
+                        fetch(`${this.DATA_DIR}/monstruos-imagenes.json`)
+                    ]);
+                    
+                    if (!tamanosResponse.ok) throw new Error("No se pudo cargar tamanos_monstruos.json");
+                    if (!monstruosExpResponse.ok) throw new Error("No se pudo cargar monstruos-exp.json");
+                    if (!monstruosImagenesResponse.ok) throw new Error("No se pudo cargar monstruos-imagenes.json");
+                    
+                    this.tamanos_monstruos = await tamanosResponse.json();
+                    this.monstruos_exp = await monstruosExpResponse.json();
+                    this.monstruos_imagenes = await monstruosImagenesResponse.json();
+                    
+                    this.ui_config = uiConfig || {};
+                    this.estados_config = estadosConfig || {limites: {moral_max: 100, cordura_max: 100}};
+                    this.descansos = descansosConfig || {};
+                    this.recompensas = recompensasConfig || {};
+                    this.comportamiento = comportamientoConfig || {};
+                    
+                    await this.cargarEncuentros();
+                    
+                } catch (e) {
+                    console.error("Error cargando configuraciones:", e);
+                    this.mostrarMensajeLog(`Error: ${e.message}`, 'enemigo');
+                    this.ui_config = {};
+                    this.estados_config = {limites: {moral_max: 100, cordura_max: 100}};
+                    this.descansos = {};
+                    this.recompensas = {};
+                    this.comportamiento = {};
+                    this.monstruos_exp = {monstruos: []};
+                    this.monstruos_imagenes = {mapeo_imagenes: {}, plurales: {}};
+                    this.tamanos_monstruos = {tamaños: {}};
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             
             async cargarEncuentros() {
                 try {
@@ -484,17 +620,7 @@
                 }
             }
 
-            async cargarExperienciaMonstruos() {
-                try {
-                    const response = await fetch(`${this.DATA_DIR}/encuentros/monstruos-exp.json`);
-                    if (!response.ok) throw new Error("No se pudo cargar monstruos-exp.json");
-                    this.monstruos_exp = await response.json();
-                } catch (e) {
-                    console.error("Error cargando experiencia de monstruos:", e);
-                    this.monstruos_exp = {monstruos: []};
-                }
-            }
-
+            
             inicializarUI() {
                 this.cargarImagenesBotones();
                 this.configurarEventosBotones();
