@@ -408,6 +408,8 @@
                 
                 // Si el nombre contiene un número al inicio, eliminarlo (ej: "2 lobos temibles" -> "lobos temibles")
                 nombreLimpio = nombreLimpio.replace(/^\d+\s+/, '');
+                  // Normalizar ñ -> n para coincidencias
+                nombreLimpio = nombreLimpio.replace(/ñ/g, 'n');
                 
                 // Buscar si el nombre está en el diccionario de plurales
                 if (this.monstruos_imagenes.plurales) {
