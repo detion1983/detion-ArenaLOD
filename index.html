@@ -45,7 +45,7 @@
         .grid-cell { background-color: rgba(139, 69, 19, 0.3); border: 1px solid rgba(139, 69, 19, 0.5); border-radius: 3px; display: flex; align-items: center; justify-content: center; position: relative; }
         .enemy-token.normal { width: 80%; height: 80%; border-radius: 5px; display: flex; align-items: end; justify-content: center; font-size: 1.8vmin; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; box-shadow: 0 0 5px rgba(0, 0, 0, 0.7); animation: appear 0.5s ease-out; cursor: pointer; transition: transform 0.2s; background-size:contain; background-position: center; background-repeat: no-repeat; border: 2px solid #8B4513; }
         .enemy-token.enorme { font-size: 1.4vmin; z-index: 3;display: flex; align-items: end;border: 3px solid #8B4513;box-shadow: 0 0 8px rgba(0, 0, 0, 0.9);background-size: contain; background-position: center; background-repeat: no-repeat;}
-        .enemy-token.extraenorme { font-size: 1.2vmin; z-index: 4;display: flex; align-items: end; box-shadow: 0 0 10px rgba(0, 0, 0, 1); background-size: containt; background-position: center; background-repeat: no-repeat;}
+        .enemy-token.extraenorme { font-size: 1.2vmin; z-index: 4;display: flex; align-items: end; box-shadow: 0 0 10px rgba(0, 0, 0, 1); background-size: contain; background-position: center; background-repeat: no-repeat;}
         .enemy-token:hover { transform: scale(1.1); }
         @keyframes appear { from { opacity: 0; transform: scale(0) rotate(-10deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
         #close-grid { position: absolute; top: -15px; right: -15px; width: 30px; height: 30px; border-radius: 50%; background-color: #8B0000; color: white; border: 2px solid white; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; z-index: 101; box-shadow: 0 0 5px rgba(0, 0, 0, 0.7); }
@@ -410,6 +410,11 @@
                 nombreLimpio = nombreLimpio.replace(/^\d+\s+/, '');
                   // Normalizar ñ -> n para coincidencias
                 nombreLimpio = nombreLimpio.replace(/ñ/g, 'n');
+
+                nombreLimpio = nombreLimpio
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Eliminar tildes
+                    .replace(/[^a-z0-9\s]/g, "") // Eliminar caracteres especiales
+                    .replace(/\s+/g, ' '); // Espacios múltiples a uno
                 
                 // Buscar si el nombre está en el diccionario de plurales
                 if (this.monstruos_imagenes.plurales) {
@@ -700,6 +705,7 @@
                 this.apuesta_activa = false;
                 this.apuesta_monedas = 0;
                 this.reward_log_visible = false;
+                this.exp_total_acumulada = 0;
             }
             
             inicializarMusica() {
@@ -1088,7 +1094,7 @@
                     'brujo': 'Brujo', 'esqueleto': 'Esqueleto', 'orco': 'Orco', 'sátiro': 'Sátiro',
                     'saurio': 'Saurio', 'tumulario': 'Tumulario', 'gnoll': 'Gnoll', 'sanguijuela': 'Sanguijuela Gigante',
                     'necrófago': 'Necrófago', 'hombre bestia': 'Hombre Bestia', 'araña': 'Araña Gigante',
-                    'ogro': 'Ogro', 'nigromante': 'Nigromante', 'licántropo': 'Licántropo', 'enredador': 'Enredador',
+                    'ogro': 'Ogro', 'nigromante': 'Nigromante', 'licántropo': 'Licántropo','licantropo': 'Licántropo','enredador': 'Enredador',
                     'troll': 'Troll Común', 'minotauro': 'Minotauro', 'momia': 'Momia', 'elfo oscuro': 'Elfo Oscuro',
                     'ettin': 'Ettin', 'espectro': 'Espectro', 'gárgola': 'Gárgola', 'wyvern': 'Wyvern',
                     'demonio': 'Demonio de Sangre', 'guardian': 'Guardián de la Tumba', 'psíquico': 'Psíquico',
