@@ -115,7 +115,11 @@
     "poyter": "poyter.png",
     "rata guerrera": "rata_guerrera.png",
     "satiro jefe": "satiro_jefe.png",
-    "zombi gigante": "zombi_gigante.png"
+    "zombi gigante": "zombi_gigante.png",
+    "brujo oscuro": "brujo.png",
+    "elfo oscuro asesino": "elfo_oscuro_asesino.png",
+    "elfo oscuro brujo": "elfo_oscuro_brujo.png",
+    "elfo oscuro capitan": "elfo_oscuro_capitan.png"
   },
   "plurales": {
     "ratas gigantes": "rata gigante",
@@ -126,7 +130,7 @@
     "Enjambre Murciélagos": "enjambre murcielago", 
     "enjambre murciélagos": "enjambre murcielago",
     "enjambre murcielagos": "enjambre murcielago",
-    "sanguijuelas gigantes": "sanguijuela gigantes",
+    "sanguijuelas gigantes": "sanguijuela gigante",
     "serpientes gigantes": "serpiente gigante",
     "elfos oscuros": "elfo oscuro",
     "asesinos elfo oscuro": "asesino elfo oscuro",
@@ -234,6 +238,10 @@
     "poyters": "poyter",
     "ratas guerreras": "rata guerrera",
     "satiros jefes": "satiro jefe",
-    "zombis gigantes": "zombi gigante"
+    "zombis gigantes": "zombi gigante",
+    "brujos oscuros": "brujo oscuro",
+    "elfos oscuros asesinos": "elfo oscuro asesino",
+    "elfos oscuros brujos": "elfo oscuro brujo",
+    "elfos oscuros capitanes": "elfo oscuro capitan"
   }
 }
