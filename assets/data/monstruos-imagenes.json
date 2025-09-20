@@ -43,8 +43,9 @@
     "berserker": "berserker.png",
     "brujo": "brujo.png",
     "caballero caido": "caballero_caido.png",
-    "ogro": "ogro.png",
+    "ogros berserker": "ogro_berserker.png",
     "ogro berserker": "ogro_berserker.png",
+    "ogro": "ogro.png",
     "ogro jefe": "ogro_jefe.png",
     "centauro": "centauro.png",
     "gigante": "gigante.png",
@@ -74,7 +75,7 @@
     "nigromante": "nigromante.png",
     "goblin": "goblin.png",
     "goblin chaman": "goblin_chaman.png",
-    "goblin de las cuevas": "goblin_cuevas.png",
+    "goblin de las cueva": "goblin_cuevas.png",
     "orco": "orco.png",
     "orco bruto": "orco_bruto.png",
     "orco chaman": "orco_chaman.png",
@@ -121,7 +122,8 @@
     "brujo oscuro": "brujo.png",
     "elfo oscuro asesino": "elfo_oscuro_asesino.png",
     "elfo oscuro brujo": "elfo_oscuro_brujo.png",
-    "elfo oscuro capitan": "elfo_oscuro_capitan.png"
+    "elfo oscuro capitan": "elfo_oscuro_capitan.png",
+    "elfos oscuros tirador": "elfos_oscuros_tirador.png"
   },
   "plurales": {
     "ratas gigantes": "rata gigante",
@@ -165,8 +167,8 @@
     "berserkers": "berserker",
     "brujos": "brujo",
     "caballeros caidos": "caballero caido",
-    "ogros": "ogro",
     "ogros berserker": "ogro berserker",
+    "ogros": "ogro",
     "ogros jefes": "ogro jefe",
     "centauros": "centauro",
     "gigantes": "gigante",
@@ -197,7 +199,7 @@
     "nigromantes": "nigromante",
     "goblins": "goblin",
     "goblins chamanes": "goblin chaman",
-    "goblins de las cuevas": "goblin de las cuevas",
+    "goblins de las cuevas": "goblin de las cueva",
     "orcos": "orco",
     "orcos brutos": "orco bruto",
     "orcos chamanes": "orco chaman",
@@ -244,6 +246,7 @@
     "brujos oscuros": "brujo oscuro",
     "elfos oscuros asesinos": "elfo oscuro asesino",
     "elfos oscuros brujos": "elfo oscuro brujo",
-    "elfos oscuros capitanes": "elfo oscuro capitan"
+    "elfos oscuros capitanes": "elfo oscuro capitan",
+    "elfos oscuros tiradores":"elfos oscuros tirador"
   }
 }
