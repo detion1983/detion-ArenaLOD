@@ -21,6 +21,7 @@
             background: url('assets/imagenes/fondo.png') no-repeat center center fixed;
             background-size: cover;
             position: relative;
+            
         }
 
         body::before {
@@ -30,7 +31,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.0);
             z-index: -1;
         }
         
@@ -44,6 +45,7 @@
             padding: 20px;
             max-width: 1400px;
             margin: 0 auto;
+            background: rgba(30, 30, 30, 0.2); /* Fondo ligeramente más claro con transparencia */
         }
         
         /* HEADER CON TÍTULO */
@@ -58,7 +60,6 @@
             max-width: 800px;
             height: 150px;
             margin: 0 auto;
-            background: url('assets/imagenes/titulo_losetas.png') no-repeat center center;
             background-size: contain;
         }
         
@@ -208,7 +209,6 @@
             /* Tamaño inicial, será actualizado por JS */
             width: 90vmin;
             height: 67.5vmin;
-            background: url('assets/imagenes/arena_grid.png') no-repeat center center;
             background-size: contain; /* Cambiado a contain para mantener proporción */
             border: 3px solid #8B4513; 
             border-radius: 5px; 
@@ -765,17 +765,12 @@
                         }
                     });
                     
-                } catch (error) {
+                } 
+                
+                catch (error) {
                     console.error("Error cargando arenas:", error);
-                    // Crear una arena por defecto si hay error
-                    this.arenas = [{
-                        nombre: "Arena Estándar",
-                        imagen: "arena_grid.png",
-                        matriz: Array(6).fill().map(() => Array(8).fill(1))
-                    }];
-                    this.arenaActual = null;
-                    this.validarEstadoArena();
-                }
+         
+                    }
             }
             
             async cambiarArena(nombreArena) {
@@ -1293,8 +1288,7 @@
             
             inicializarUI() {
                 this.cargarImagenesBotones();
-                this.configurarEventosBotones();
-                this.cargarFondo();
+                this.configurarEventosBotones();   
             }
 
             obtenerTamanoMonstruo(nombre) {
@@ -1342,10 +1336,7 @@
                 document.getElementById('btn-musica-off').addEventListener('click', () => this.activarMusica());
             }
             
-            cargarFondo() {
-                const fondo = document.getElementById('background');
-                fondo.style.backgroundImage = `url('${this.IMAGES_DIR}/fondo.png')`;
-            }
+            
             
             inicializarEstados() {
                 const limites = this.estados_config.limites || {};
