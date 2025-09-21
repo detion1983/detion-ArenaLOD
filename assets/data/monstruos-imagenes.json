@@ -122,9 +122,7 @@
     "brujo oscuro": "brujo.png",
     "elfo oscuro asesino": "elfo_oscuro_asesino.png",
     "elfo oscuro brujo": "elfo_oscuro_brujo.png",
-    "elfo oscuro capitan": "elfo_oscuro_capitan.png",
-    "elfos oscuros tirador": "elfos_oscuros_tirador.png",
-    "asesinos elfos oscuro": "asesinos_elfos_oscuro.png"
+    "elfo oscuro capitan": "elfo_oscuro_capitan.png"
   },
   "plurales": {
     "ratas gigantes": "rata gigante",
@@ -138,7 +136,7 @@
     "sanguijuelas gigantes": "sanguijuela gigante",
     "serpientes gigantes": "serpiente gigante",
     "elfos oscuros": "elfo oscuro",
-    "asesinos elfos oscuro": "asesino elfo oscuro",
+    "asesinos elfo oscuro": "asesino elfo oscuro",
     "lobos gigantes": "lobo gigante",
     "capitanes elfo oscuro": "capitan elfo oscuro",
     "enredadores": "enredador",
@@ -247,7 +245,6 @@
     "brujos oscuros": "brujo oscuro",
     "elfos oscuros asesinos": "elfo oscuro asesino",
     "elfos oscuros brujos": "elfo oscuro brujo",
-    "elfos oscuros capitanes": "elfo oscuro capitan",
-    "elfos oscuros tiradores":"elfos oscuros tirador"
+    "elfos oscuros capitanes": "elfo oscuro capitan"
   }
 }
