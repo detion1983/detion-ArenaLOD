@@ -110,6 +110,18 @@
             gap: 10px; 
         }
         
+        /* Selector de Arena */
+        .select-arena {
+            background: rgba(40, 40, 40, 0.9);
+            color: #fff;
+            border: 2px solid #5D4037;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 5px;
+        }
+        
         /* BOTONES - MEJORADOS */
         .btn { 
             width: 60px;
@@ -193,10 +205,11 @@
             position: relative;
             cursor: move; 
             user-select: none; 
+            /* Tamaño inicial, será actualizado por JS */
             width: 90vmin;
             height: 67.5vmin;
             background: url('assets/imagenes/arena_grid.png') no-repeat center center;
-            background-size: cover; 
+            background-size: contain; /* Cambiado a contain para mantener proporción */
             border: 3px solid #8B4513; 
             border-radius: 5px; 
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.7); 
@@ -219,8 +232,6 @@
             width: 100%; 
             height: 100%; 
             display: grid; 
-            grid-template-columns: repeat(8, 1fr); 
-            grid-template-rows: repeat(6, 1fr); 
             gap: 4px; 
             padding: 1.5vmin; 
             z-index: 2;
@@ -236,6 +247,11 @@
             justify-content: center; 
             position: relative; 
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .grid-cell.invalida {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
         }
         
         /* BOTONES PRINCIPALES - MEJORADOS */
@@ -582,6 +598,13 @@
                 </div>
             </div>
             
+            <div class="config-group">
+                <div class="config-title">Arena</div>
+                <select id="select-arena" class="select-arena">
+                    <option value="">Cargando arenas...</option>
+                </select>
+            </div>
+            
             <div id="nivel-arena-container">
                 <div id="nivel-arena-label">Nivel arena COBRE</div>
             </div>
@@ -639,6 +662,8 @@
                 this.descansos = null;
                 this.recompensas = null;
                 this.comportamiento = null;
+                this.arenas = null;
+                this.arenaActual = null;
                 
                 this.heroes_nivel = null;
                 this.ronda_actual = 1;
@@ -668,11 +693,15 @@
                 this.gridVisible = false;
                 this.enemyTokens = [];
                 this.enemigosProcesados = [];
+                
+                // Nuevas propiedades para manejar el tamaño del grid
+                this.gridAspectRatio = 4/3; // Relación de aspecto por defecto (4:3)
             }
             
             async init() {
                 try {
                     await this.cargarConfiguraciones();
+                    await this.cargarArenas();
                     this.inicializarUI();
                     this.inicializarEstados();
                     this.inicializarMusica();
@@ -684,9 +713,160 @@
                     this.ajustarUIResponsive();
                     this.inicializarGrid();
                     this.actualizarNivelArena();
+                    
+                    // Nueva validación inicial
+                    this.validarEstadoArena();
                 } catch (error) {
                     console.error("Error inicializando la aplicación:", error);
                     this.mostrarMensajeLog(`Error al inicializar: ${error.message}`, 'enemigo');
+                }
+            }
+            
+            async cargarArenas() {
+                try {
+                    const response = await fetch(`${this.DATA_DIR}/arenas.json`);
+                    if (!response.ok) throw new Error("No se pudo cargar arenas.json");
+                    
+                    const data = await response.json();
+                    this.arenas = data.arenas;
+                    
+                    // Poblar el selector de arenas
+                    const selectArena = document.getElementById('select-arena');
+                    selectArena.innerHTML = '';
+                    
+                    // Añadir opción por defecto que obligue a seleccionar
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = '-- SELECCIONA UNA ARENA --';
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    selectArena.appendChild(defaultOption);
+                    
+                    this.arenas.forEach(arena => {
+                        const option = document.createElement('option');
+                        option.value = arena.nombre;
+                        option.textContent = arena.nombre;
+                        selectArena.appendChild(option);
+                    });
+                    
+                    // Establecer la arena por defecto (si existe) pero mantener selección forzada
+                    if (this.arenas.length > 0) {
+                        this.arenaActual = null; // Inicialmente null hasta que usuario seleccione
+                    }
+                    
+                    // Event listener para cambiar de arena
+                    selectArena.addEventListener('change', (e) => {
+                        const nombreArena = e.target.value;
+                        if (nombreArena) {
+                            this.cambiarArena(nombreArena);
+                        } else {
+                            this.arenaActual = null;
+                            this.validarEstadoArena(); // Validar estado después del cambio
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error("Error cargando arenas:", error);
+                    // Crear una arena por defecto si hay error
+                    this.arenas = [{
+                        nombre: "Arena Estándar",
+                        imagen: "arena_grid.png",
+                        matriz: Array(6).fill().map(() => Array(8).fill(1))
+                    }];
+                    this.arenaActual = null;
+                    this.validarEstadoArena();
+                }
+            }
+            
+            async cambiarArena(nombreArena) {
+                const arena = this.arenas.find(a => a.nombre === nombreArena);
+                if (!arena) {
+                    this.arenaActual = null;
+                    this.validarEstadoArena();
+                    return;
+                }
+                
+                this.arenaActual = arena;
+                this.limpiarGrid();
+                
+                // Cargar la imagen para obtener sus dimensiones
+                if (arena.imagen) {
+                    await this.ajustarGridASize(arena.imagen);
+                    document.getElementById('grid-container').style.backgroundImage = `url('${this.IMAGES_DIR}/${arena.imagen}')`;
+                }
+                
+                this.crearGridDesdeMatriz(arena.matriz);
+                this.mostrarMensajeLog(`Arena cambiada a: ${arena.nombre}`, 'publico');
+                
+                // Validar estado después de cambiar arena
+                this.validarEstadoArena();
+            }
+
+            validarEstadoArena() {
+                const btnIniciar = document.getElementById('btn-iniciar');
+                const tieneArenaSeleccionada = this.arenaActual !== null;
+                
+                // Habilitar/deshabilitar botón según si hay arena seleccionada
+                btnIniciar.disabled = !tieneArenaSeleccionada;
+                
+                // También actualizar tooltip o mensaje de estado si quieres
+                if (!tieneArenaSeleccionada) {
+                    btnIniciar.title = "Selecciona una arena primero";
+                } else {
+                    btnIniciar.title = "Iniciar arena";
+                }
+            }
+            
+            // Nueva función para ajustar el tamaño del grid según la imagen
+            async ajustarGridASize(imagenNombre) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Calcular la relación de aspecto de la imagen
+                        this.gridAspectRatio = img.width / img.height;
+                        
+                        // Ajustar el tamaño del contenedor del grid
+                        const gridContainer = document.getElementById('grid-container');
+                        const maxWidth = Math.min(800, window.innerWidth * 0.9);
+                        const width = maxWidth;
+                        const height = width / this.gridAspectRatio;
+                        
+                        gridContainer.style.width = `${width}px`;
+                        gridContainer.style.height = `${height}px`;
+                        
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        // Si hay error al cargar la imagen, usar relación de aspecto por defecto
+                        console.warn("No se pudo cargar la imagen para calcular la relación de aspecto");
+                        this.gridAspectRatio = 4/3; // Relación por defecto 4:3
+                        resolve();
+                    };
+                    img.src = `${this.IMAGES_DIR}/${imagenNombre}`;
+                });
+            }
+            
+            crearGridDesdeMatriz(matriz) {
+                const gridContent = document.getElementById('grid-content');
+                gridContent.innerHTML = '';
+                
+                // Establecer el número de columnas y filas según la matriz
+                const columnas = matriz[0].length;
+                const filas = matriz.length;
+                
+                gridContent.style.gridTemplateColumns = `repeat(${columnas}, 1fr)`;
+                gridContent.style.gridTemplateRows = `repeat(${filas}, 1fr)`;
+                
+                // Crear las celdas
+                for (let i = 0; i < filas; i++) {
+                    for (let j = 0; j < columnas; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'grid-cell';
+                        if (matriz[i][j] === 0) {
+                            cell.classList.add('invalida');
+                        }
+                        gridContent.appendChild(cell);
+                    }
                 }
             }
             
@@ -694,16 +874,16 @@
                 const gridContainer = document.getElementById('grid-container');
                 const closeButton = document.getElementById('close-grid');
                 
+                // Crear grid por defecto si no hay arena actual
+                if (!this.arenaActual) {
+                    const matrizPorDefecto = Array(6).fill().map(() => Array(8).fill(1));
+                    this.crearGridDesdeMatriz(matrizPorDefecto);
+                } else {
+                    this.crearGridDesdeMatriz(this.arenaActual.matriz);
+                }
+                
                 this.isDragging = false;
                 this.dragOffset = { x: 0, y: 0 };
-                
-                const gridContent = document.getElementById('grid-content');
-                for (let i = 0; i < 48; i++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    cell.dataset.index = i;
-                    gridContent.appendChild(cell);
-                }
                 
                 closeButton.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -801,21 +981,27 @@
                     }
                 };
                 
+                // Obtener dimensiones de la arena actual
+                const filas = this.arenaActual.matriz.length;
+                const columnas = this.arenaActual.matriz[0].length;
+                
                 // Función para verificar si un área está disponible
                 const areaDisponible = (inicioIndex, ancho, alto) => {
-                    const inicioFila = Math.floor(inicioIndex / 8);
-                    const inicioColumna = inicioIndex % 8;
+                    const inicioFila = Math.floor(inicioIndex / columnas);
+                    const inicioColumna = inicioIndex % columnas;
                     
                     // Verificar que no se sale de los límites
-                    if (inicioFila + alto > 6 || inicioColumna + ancho > 8) {
+                    if (inicioFila + alto > filas || inicioColumna + ancho > columnas) {
                         return false;
                     }
                     
-                    // Verificar que todas las celdas del área estén disponibles
+                    // Verificar que todas las celdas del área estén disponibles y sean válidas
                     for (let fila = 0; fila < alto; fila++) {
                         for (let columna = 0; columna < ancho; columna++) {
-                            const celdaIndex = (inicioFila + fila) * 8 + (inicioColumna + columna);
-                            if (!posicionesDisponibles.includes(celdaIndex)) {
+                            const celdaIndex = (inicioFila + fila) * columnas + (inicioColumna + columna);
+                            const celda = document.querySelectorAll('.grid-cell')[celdaIndex];
+                            
+                            if (!celda || celda.classList.contains('invalida') || celda.classList.contains('ocupada')) {
                                 return false;
                             }
                         }
@@ -826,16 +1012,17 @@
                 
                 // Función para reservar un área
                 const reservarArea = (inicioIndex, ancho, alto) => {
-                    const inicioFila = Math.floor(inicioIndex / 8);
-                    const inicioColumna = inicioIndex % 8;
+                    const inicioFila = Math.floor(inicioIndex / columnas);
+                    const inicioColumna = inicioIndex % columnas;
                     const celdasReservadas = [];
                     
                     for (let fila = 0; fila < alto; fila++) {
                         for (let columna = 0; columna < ancho; columna++) {
-                            const celdaIndex = (inicioFila + fila) * 8 + (inicioColumna + columna);
-                            const indexEnArray = posicionesDisponibles.indexOf(celdaIndex);
-                            if (indexEnArray !== -1) {
-                                posicionesDisponibles.splice(indexEnArray, 1);
+                            const celdaIndex = (inicioFila + fila) * columnas + (inicioColumna + columna);
+                            const celda = document.querySelectorAll('.grid-cell')[celdaIndex];
+                            
+                            if (celda) {
+                                celda.classList.add('ocupada');
                                 celdasReservadas.push(celdaIndex);
                             }
                         }
@@ -844,7 +1031,11 @@
                     return celdasReservadas;
                 };
                 
-                let posicionesDisponibles = Array.from({length: 48}, (_, i) => i);
+                // Obtener todas las posiciones disponibles (células válidas y no ocupadas)
+                let posicionesDisponibles = [];
+                document.querySelectorAll('.grid-cell:not(.invalida):not(.ocupada)').forEach((celda, index) => {
+                    posicionesDisponibles.push(index);
+                });
                 
                 // Ordenar enemigos por tamaño (los más grandes primero)
                 enemigos.sort((a, b) => {
@@ -893,10 +1084,10 @@
                         }
                         
                         // Reservar el área completa
-                        const celdasReservadas = reservarArea(cellIndex, dimensiones.ancho, dimensiones.alto);
+                        reservarArea(cellIndex, dimensiones.ancho, dimensiones.alto);
                         
-                        const inicioFila = Math.floor(cellIndex / 8);
-                        const inicioColumna = cellIndex % 8;
+                        const inicioFila = Math.floor(cellIndex / columnas);
+                        const inicioColumna = cellIndex % columnas;
                         
                         const token = document.createElement('div');
                         token.className = 'enemy-token';
@@ -906,8 +1097,8 @@
                         const imagenToken = this.obtenerImagenToken(enemigo.nombre);
                         token.style.backgroundImage = `url('${imagenToken}')`;
                         
-                        const cellWidth = 100 / 8;
-                        const cellHeight = 100 / 6;
+                        const cellWidth = 100 / columnas;
+                        const cellHeight = 100 / filas;
                         
                         token.style.position = 'absolute';
                         token.style.width = `${cellWidth * dimensiones.ancho}%`;
@@ -1010,6 +1201,11 @@
             ajustarUIResponsive() {
                 const eventLog = document.getElementById('event-log');
                 if (window.innerWidth > 1000) eventLog.style.fontSize = '14px';
+                
+                // Ajustar el tamaño del grid si hay una arena actual
+                if (this.arenaActual && this.arenaActual.imagen) {
+                    this.ajustarGridASize(this.arenaActual.imagen);
+                }
             }
             
             async cargarConfiguraciones() {
@@ -1258,10 +1454,18 @@
                 const eventLog = document.getElementById('event-log');
                 eventLog.innerHTML = '';
                 this.inicializarEstados();
+                
+                // RESTAURAR CONTROLES AL REINICIAR
                 document.getElementById('btn-iniciar').disabled = false;
                 document.getElementById('btn-ronda').disabled = true;
                 document.getElementById('btn-heroico').disabled = true;
                 document.getElementById('btn-deshonroso').disabled = true;
+                document.getElementById('btn-nivel-up').disabled = false;
+                document.getElementById('btn-nivel-down').disabled = false;
+                document.getElementById('btn-apuesta-up').disabled = false;
+                document.getElementById('btn-apuesta-down').disabled = false;
+                document.getElementById('select-arena').disabled = false;
+                
                 this.nivel_valor = 1;
                 this.apuesta_valor = 0;
                 document.getElementById('nivel-label').textContent = this.nivel_valor;
@@ -1281,12 +1485,25 @@
             }
             
             async iniciarArena() {
+
+                if (!this.arenaActual) {
+                    this.mostrarMensajeLog("Debes seleccionar una arena primero", 'enemigo');
+                    return;
+                }
+
                 this.heroes_nivel = this.nivel_valor;
                 await this.cargarEncuentros();
+                
+                // BLOQUEAR CONTROLES AL INICIAR
                 document.getElementById('btn-iniciar').disabled = true;
                 document.getElementById('btn-ronda').disabled = false;
                 document.getElementById('btn-heroico').disabled = false;
                 document.getElementById('btn-deshonroso').disabled = false;
+                document.getElementById('btn-nivel-up').disabled = true;
+                document.getElementById('btn-nivel-down').disabled = true;
+                document.getElementById('btn-apuesta-up').disabled = true;
+                document.getElementById('btn-apuesta-down').disabled = true;
+                document.getElementById('select-arena').disabled = true;
                 
                 if (this.apuesta_valor > 0) {
                     this.apuesta_activa = true;
@@ -1298,7 +1515,7 @@
                 this.mostrarMensajeLog(`Ronda ${this.ronda_actual}`, 'ronda');
                 this.ejecutarRonda(this.ronda_actual);
             }
-            
+  
             ejecutarRonda(ronda) {
                 this.ronda_actual = ronda;
                 const tipo_ronda = ronda === 1 ? "Calentamiento" : ronda === 2 ? "Desafío" : "Jefe Final";
@@ -1650,10 +1867,18 @@
                     this.mostrarMensajeLog("Los héroes han caído en la arena", 'enemigo');
                 }
                 
+                // RESTAURAR CONTROLES AL FINALIZAR (pero mantener iniciar deshabilitado hasta reinicio)
                 document.getElementById('btn-ronda').disabled = true;
                 document.getElementById('btn-heroico').disabled = true;
                 document.getElementById('btn-deshonroso').disabled = true;
-                document.getElementById('btn-iniciar').disabled = false;
+                document.getElementById('btn-iniciar').disabled = false; // Permitir nuevo inicio
+                document.getElementById('btn-nivel-up').disabled = true; // Mantener bloqueados
+                document.getElementById('btn-nivel-down').disabled = true;
+                document.getElementById('btn-apuesta-up').disabled = true;
+                document.getElementById('btn-apuesta-down').disabled = true;
+                document.getElementById('select-arena').disabled = true;
+                
+                this.mostrarMensajeLog("\nPresiona 'Reiniciar' para comenzar una nueva arena", 'publico');
             }
 
             procesarRecompensas() {
@@ -1758,6 +1983,11 @@
                     if (esHeroico) this.moral_grupo = Math.min(this.estados_config.limites.moral_max, this.moral_grupo + 5);
                     else this.cordura = Math.max(0, this.cordura - 3);
                 }
+            }
+            
+            ocultarGrid() {
+                document.getElementById('grid-container').classList.remove('visible');
+                this.gridVisible = false;
             }
         }
 
