@@ -45,7 +45,7 @@
             padding: 20px;
             max-width: 1400px;
             margin: 0 auto;
-            background: rgba(30, 30, 30, 0.2); /* Fondo ligeramente más claro con transparencia */
+            background: rgba(30, 30, 30, 0.2);
         }
         
         /* HEADER CON TÍTULO */
@@ -157,7 +157,7 @@
         #log-container { 
             position: relative;
             width: 100%;
-            height: 200px; /* Altura fija */
+            height: 200px;
             margin: 0 auto 20px;
             display: flex; 
             justify-content: center; 
@@ -165,7 +165,7 @@
             background: url('assets/imagenes/pergamino.png') no-repeat center center; 
             background-size: cover; 
             padding: 10px;
-            overflow: hidden; /* Ocultar desbordamiento */
+            overflow: hidden;
         }
         
         #event-log { 
@@ -175,7 +175,7 @@
             color: #3a2c0e; 
             border: none; 
             text-align: center; 
-            overflow: auto; /* Habilitar scroll */
+            overflow: auto;
             padding: 15px;
             font-size: 1rem;
             line-height: 1.4;
@@ -206,17 +206,16 @@
             position: relative;
             cursor: move; 
             user-select: none; 
-            /* Tamaño inicial, será actualizado por JS */
             width: 90vmin;
             height: 67.5vmin;
-            background-size: contain; /* Cambiado a contain para mantener proporción */
+            background-size: contain;
             border: 3px solid #8B4513; 
             border-radius: 5px; 
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.7); 
             z-index: 10; 
             margin-bottom: 20px;
             overflow: hidden;
-            opacity: 0; /* Inicialmente oculto */
+            opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
@@ -667,7 +666,7 @@
                 
                 this.heroes_nivel = null;
                 this.ronda_actual = 1;
-                this.encuentro_actual = null;
+                this.encuentros_seleccionados = [];
                 this.encuentros = {};
                 this.acciones_heroicas = 0;
                 this.acciones_deshonrosas = 0;
@@ -694,14 +693,18 @@
                 this.enemyTokens = [];
                 this.enemigosProcesados = [];
                 
-                // Nuevas propiedades para manejar el tamaño del grid
-                this.gridAspectRatio = 4/3; // Relación de aspecto por defecto (4:3)
+                this.gridAspectRatio = 4/3;
+                
+                // Propiedades para el sistema de monstruos
+                this.monstersStats = {};
+                this.monstersByCategory = {};
             }
             
             async init() {
                 try {
                     await this.cargarConfiguraciones();
                     await this.cargarArenas();
+                    await this.cargarMonstruosStats();
                     this.inicializarUI();
                     this.inicializarEstados();
                     this.inicializarMusica();
@@ -714,12 +717,76 @@
                     this.inicializarGrid();
                     this.actualizarNivelArena();
                     
-                    // Nueva validación inicial
                     this.validarEstadoArena();
                 } catch (error) {
                     console.error("Error inicializando la aplicación:", error);
                     this.mostrarMensajeLog(`Error al inicializar: ${error.message}`, 'enemigo');
                 }
+            }
+            
+            async cargarMonstruosStats() {
+                try {
+                    const response = await fetch(`${this.DATA_DIR}/Monstruos_stats.json`);
+                    if (!response.ok) throw new Error("No se pudo cargar Monstruos_stats.json");
+                    
+                    this.monstersByCategory = await response.json();
+                    
+                    this.monstersStats = {};
+                    for (const category in this.monstersByCategory) {
+                        if (Array.isArray(this.monstersByCategory[category])) {
+                            this.monstersByCategory[category].forEach(monster => {
+                                this.monstersStats[monster.nombre] = monster;
+                            });
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error("Error cargando estadísticas de monstruos:", error);
+                    this.monstersStats = {};
+                    this.monstersByCategory = {};
+                }
+            }
+            
+            buscarMonstruoEnStats(nombre) {
+                if (this.monstersStats[nombre]) {
+                    return this.monstersStats[nombre];
+                }
+                
+                const nombreLower = nombre.toLowerCase();
+                for (const key in this.monstersStats) {
+                    if (key.toLowerCase() === nombreLower) {
+                        return this.monstersStats[key];
+                    }
+                }
+                
+                for (const key in this.monstersStats) {
+                    if (key.toLowerCase().includes(nombreLower) || nombreLower.includes(key.toLowerCase())) {
+                        return this.monstersStats[key];
+                    }
+                }
+                
+                return null;
+            }
+            
+            obtenertamañoMonstruo(nombre) {
+                const monsterStats = this.buscarMonstruoEnStats(nombre);
+                if (monsterStats && monsterStats.tamaño) {
+                    return monsterStats.tamaño;
+                }
+                
+                nombre = nombre.toLowerCase();
+                if (nombre.includes('gigante') || nombre.includes('enorme') || nombre.includes('gran ')) return "ENORME";
+                if (nombre.includes('dragón') || nombre.includes('hidra') || nombre.includes('wyvern')) return "EXTRAENORME";
+                return "NORMAL";
+            }
+            
+            obtenerExperienciaMonstruo(nombre) {
+                const monsterStats = this.buscarMonstruoEnStats(nombre);
+                if (monsterStats && monsterStats.exp) {
+                    return monsterStats.exp;
+                }
+                
+                return this.nivel_valor * 100;
             }
             
             async cargarArenas() {
@@ -730,11 +797,9 @@
                     const data = await response.json();
                     this.arenas = data.arenas;
                     
-                    // Poblar el selector de arenas
                     const selectArena = document.getElementById('select-arena');
                     selectArena.innerHTML = '';
                     
-                    // Añadir opción por defecto que obligue a seleccionar
                     const defaultOption = document.createElement('option');
                     defaultOption.value = '';
                     defaultOption.textContent = '-- SELECCIONA UNA ARENA --';
@@ -749,28 +814,23 @@
                         selectArena.appendChild(option);
                     });
                     
-                    // Establecer la arena por defecto (si existe) pero mantener selección forzada
                     if (this.arenas.length > 0) {
-                        this.arenaActual = null; // Inicialmente null hasta que usuario seleccione
+                        this.arenaActual = null;
                     }
                     
-                    // Event listener para cambiar de arena
                     selectArena.addEventListener('change', (e) => {
                         const nombreArena = e.target.value;
                         if (nombreArena) {
                             this.cambiarArena(nombreArena);
                         } else {
                             this.arenaActual = null;
-                            this.validarEstadoArena(); // Validar estado después del cambio
+                            this.validarEstadoArena();
                         }
                     });
                     
-                } 
-                
-                catch (error) {
+                } catch (error) {
                     console.error("Error cargando arenas:", error);
-         
-                    }
+                }
             }
             
             async cambiarArena(nombreArena) {
@@ -784,7 +844,6 @@
                 this.arenaActual = arena;
                 this.limpiarGrid();
                 
-                // Cargar la imagen para obtener sus dimensiones
                 if (arena.imagen) {
                     await this.ajustarGridASize(arena.imagen);
                     document.getElementById('grid-container').style.backgroundImage = `url('${this.IMAGES_DIR}/${arena.imagen}')`;
@@ -793,7 +852,6 @@
                 this.crearGridDesdeMatriz(arena.matriz);
                 this.mostrarMensajeLog(`Arena cambiada a: ${arena.nombre}`, 'publico');
                 
-                // Validar estado después de cambiar arena
                 this.validarEstadoArena();
             }
 
@@ -801,10 +859,8 @@
                 const btnIniciar = document.getElementById('btn-iniciar');
                 const tieneArenaSeleccionada = this.arenaActual !== null;
                 
-                // Habilitar/deshabilitar botón según si hay arena seleccionada
                 btnIniciar.disabled = !tieneArenaSeleccionada;
                 
-                // También actualizar tooltip o mensaje de estado si quieres
                 if (!tieneArenaSeleccionada) {
                     btnIniciar.title = "Selecciona una arena primero";
                 } else {
@@ -812,15 +868,12 @@
                 }
             }
             
-            // Nueva función para ajustar el tamaño del grid según la imagen
             async ajustarGridASize(imagenNombre) {
                 return new Promise((resolve) => {
                     const img = new Image();
                     img.onload = () => {
-                        // Calcular la relación de aspecto de la imagen
                         this.gridAspectRatio = img.width / img.height;
                         
-                        // Ajustar el tamaño del contenedor del grid
                         const gridContainer = document.getElementById('grid-container');
                         const maxWidth = Math.min(800, window.innerWidth * 0.9);
                         const width = maxWidth;
@@ -832,9 +885,8 @@
                         resolve();
                     };
                     img.onerror = () => {
-                        // Si hay error al cargar la imagen, usar relación de aspecto por defecto
                         console.warn("No se pudo cargar la imagen para calcular la relación de aspecto");
-                        this.gridAspectRatio = 4/3; // Relación por defecto 4:3
+                        this.gridAspectRatio = 4/3;
                         resolve();
                     };
                     img.src = `${this.IMAGES_DIR}/${imagenNombre}`;
@@ -845,14 +897,12 @@
                 const gridContent = document.getElementById('grid-content');
                 gridContent.innerHTML = '';
                 
-                // Establecer el número de columnas y filas según la matriz
                 const columnas = matriz[0].length;
                 const filas = matriz.length;
                 
                 gridContent.style.gridTemplateColumns = `repeat(${columnas}, 1fr)`;
                 gridContent.style.gridTemplateRows = `repeat(${filas}, 1fr)`;
                 
-                // Crear las celdas
                 for (let i = 0; i < filas; i++) {
                     for (let j = 0; j < columnas; j++) {
                         const cell = document.createElement('div');
@@ -869,7 +919,6 @@
                 const gridContainer = document.getElementById('grid-container');
                 const closeButton = document.getElementById('close-grid');
                 
-                // Crear grid por defecto si no hay arena actual
                 if (!this.arenaActual) {
                     const matrizPorDefecto = Array(6).fill().map(() => Array(8).fill(1));
                     this.crearGridDesdeMatriz(matrizPorDefecto);
@@ -895,7 +944,6 @@
                 
                 document.addEventListener('mousemove', (e) => {
                     if (this.isDragging) {
-                        // Limitar el movimiento al área del panel derecho
                         const rightPanel = document.getElementById('right-panel');
                         const rightPanelRect = rightPanel.getBoundingClientRect();
                         const gridRect = gridContainer.getBoundingClientRect();
@@ -903,7 +951,6 @@
                         let newLeft = e.clientX - this.dragOffset.x;
                         let newTop = e.clientY - this.dragOffset.y;
                         
-                        // Limitar a los bordes del panel derecho
                         newLeft = Math.max(rightPanelRect.left, Math.min(newLeft, rightPanelRect.right - gridRect.width));
                         newTop = Math.max(rightPanelRect.top, Math.min(newTop, rightPanelRect.bottom - gridRect.height));
                         
@@ -917,40 +964,6 @@
                     this.isDragging = false;
                     gridContainer.style.cursor = 'move';
                 });
-                
-                gridContainer.addEventListener('touchstart', (e) => {
-                    if (e.target === gridContainer || e.target === gridContent) {
-                        this.isDragging = true;
-                        const touch = e.touches[0];
-                        this.dragOffset = { x: touch.clientX - gridContainer.offsetLeft, y: touch.clientY - gridContainer.offsetTop };
-                        e.preventDefault();
-                    }
-                });
-                
-                document.addEventListener('touchmove', (e) => {
-                    if (this.isDragging) {
-                        const touch = e.touches[0];
-                        
-                        // Limitar el movimiento al área del panel derecho
-                        const rightPanel = document.getElementById('right-panel');
-                        const rightPanelRect = rightPanel.getBoundingClientRect();
-                        const gridRect = gridContainer.getBoundingClientRect();
-                        
-                        let newLeft = touch.clientX - this.dragOffset.x;
-                        let newTop = touch.clientY - this.dragOffset.y;
-                        
-                        // Limitar a los bordes del panel derecho
-                        newLeft = Math.max(rightPanelRect.left, Math.min(newLeft, rightPanelRect.right - gridRect.width));
-                        newTop = Math.max(rightPanelRect.top, Math.min(newTop, rightPanelRect.bottom - gridRect.height));
-                        
-                        gridContainer.style.left = newLeft + 'px';
-                        gridContainer.style.top = newTop + 'px';
-                        gridContainer.style.transform = 'none';
-                        e.preventDefault();
-                    }
-                });
-                
-                document.addEventListener('touchend', () => this.isDragging = false);
             }
 
             limpiarGrid() {
@@ -968,29 +981,25 @@
                 
                 const gridContainer = document.getElementById('grid-container');
                 
-                const obtenerDimensiones = (tamano) => {
-                    switch (tamano) {
+                const obtenerDimensiones = (tamaño) => {
+                    switch (tamaño) {
                         case 'ENORME': return { ancho: 2, alto: 2 };
                         case 'EXTRAENORME': return { ancho: 3, alto: 2 };
                         default: return { ancho: 1, alto: 1 };
                     }
                 };
                 
-                // Obtener dimensiones de la arena actual
                 const filas = this.arenaActual.matriz.length;
                 const columnas = this.arenaActual.matriz[0].length;
                 
-                // Función para verificar si un área está disponible
                 const areaDisponible = (inicioIndex, ancho, alto) => {
                     const inicioFila = Math.floor(inicioIndex / columnas);
                     const inicioColumna = inicioIndex % columnas;
                     
-                    // Verificar que no se sale de los límites
                     if (inicioFila + alto > filas || inicioColumna + ancho > columnas) {
                         return false;
                     }
                     
-                    // Verificar que todas las celdas del área estén disponibles y sean válidas
                     for (let fila = 0; fila < alto; fila++) {
                         for (let columna = 0; columna < ancho; columna++) {
                             const celdaIndex = (inicioFila + fila) * columnas + (inicioColumna + columna);
@@ -1005,7 +1014,6 @@
                     return true;
                 };
                 
-                // Función para reservar un área
                 const reservarArea = (inicioIndex, ancho, alto) => {
                     const inicioFila = Math.floor(inicioIndex / columnas);
                     const inicioColumna = inicioIndex % columnas;
@@ -1026,26 +1034,24 @@
                     return celdasReservadas;
                 };
                 
-                // Obtener todas las posiciones disponibles (células válidas y no ocupadas)
                 let posicionesDisponibles = [];
                 document.querySelectorAll('.grid-cell:not(.invalida):not(.ocupada)').forEach((celda, index) => {
                     posicionesDisponibles.push(index);
                 });
                 
-                // Ordenar enemigos por tamaño (los más grandes primero)
                 enemigos.sort((a, b) => {
-                    const tamanoA = this.obtenerTamanoMonstruo(a.nombre);
-                    const tamanoB = this.obtenerTamanoMonstruo(b.nombre);
+                    const tamañoA = this.obtenertamañoMonstruo(a.nombre);
+                    const tamañoB = this.obtenertamañoMonstruo(b.nombre);
                     
                     const prioridad = { "EXTRAENORME": 3, "ENORME": 2, "NORMAL": 1 };
-                    return prioridad[tamanoB] - prioridad[tamanoA];
+                    return prioridad[tamañoB] - prioridad[tamañoA];
                 });
                 
                 enemigos.forEach(enemigo => {
                     if (posicionesDisponibles.length === 0) return;
                     
-                    const tamano = this.obtenerTamanoMonstruo(enemigo.nombre);
-                    const dimensiones = obtenerDimensiones(tamano);
+                    const tamaño = this.obtenertamañoMonstruo(enemigo.nombre);
+                    const dimensiones = obtenerDimensiones(tamaño);
                     
                     for (let i = 0; i < enemigo.cantidad; i++) {
                         if (posicionesDisponibles.length === 0) break;
@@ -1054,17 +1060,14 @@
                         let intentos = 0;
                         let posIndex, cellIndex;
                         
-                        // Buscar una posición válida
                         while (!posicionValida && intentos < 100 && posicionesDisponibles.length > 0) {
                             posIndex = Math.floor(Math.random() * posicionesDisponibles.length);
                             cellIndex = posicionesDisponibles[posIndex];
                             
-                            // Verificar si el área está disponible
                             posicionValida = areaDisponible(cellIndex, dimensiones.ancho, dimensiones.alto);
                             
                             if (!posicionValida) {
                                 intentos++;
-                                // Remover esta celda de las disponibles si no es válida
                                 const indexToRemove = posicionesDisponibles.indexOf(cellIndex);
                                 if (indexToRemove !== -1) {
                                     posicionesDisponibles.splice(indexToRemove, 1);
@@ -1073,12 +1076,10 @@
                         }
                         
                         if (!posicionValida) {
-                            // Si no encontramos posición después de muchos intentos, saltamos este enemigo
                             console.warn(`No se pudo colocar al enemigo: ${enemigo.nombre}`);
                             continue;
                         }
                         
-                        // Reservar el área completa
                         reservarArea(cellIndex, dimensiones.ancho, dimensiones.alto);
                         
                         const inicioFila = Math.floor(cellIndex / columnas);
@@ -1086,10 +1087,15 @@
                         
                         const token = document.createElement('div');
                         token.className = 'enemy-token';
-                        token.classList.add(tamano.toLowerCase());
+                        token.classList.add(tamaño.toLowerCase());
                         
-                        // Obtener y establecer la imagen del token
-                        const imagenToken = this.obtenerImagenToken(enemigo.nombre);
+                        let imagenToken = `${this.TOKENS_DIR}/default.png`;
+                        if (enemigo.datos && enemigo.datos.Imagen) {
+                            imagenToken = `${this.TOKENS_DIR}/${enemigo.datos.Imagen}`;
+                        } else {
+                            imagenToken = this.obtenerImagenToken(enemigo.nombre);
+                        }
+                        
                         token.style.backgroundImage = `url('${imagenToken}')`;
                         
                         const cellWidth = 100 / columnas;
@@ -1102,7 +1108,14 @@
                         token.style.top = `${inicioFila * cellHeight}%`;
                         
                         token.textContent = this.obtenerAbreviatura(enemigo.nombre);
-                        token.title = `${enemigo.nombre} (${tamano})`;
+                        
+                        let tooltip = `${enemigo.nombre} (${tamaño})`;
+                        if (enemigo.datos) {
+                            if (enemigo.datos.Armas) tooltip += `\nArmas: ${enemigo.datos.Armas}`;
+                            if (enemigo.datos.Armadura > 0) tooltip += `\nArmadura: ${enemigo.datos.Armadura}`;
+                            if (enemigo.datos.Especial) tooltip += `\nEspecial: ${enemigo.datos.Especial}`;
+                        }
+                        token.title = tooltip;
                         
                         document.getElementById('grid-content').appendChild(token);
                         this.enemyTokens.push(token);
@@ -1113,26 +1126,20 @@
                 this.gridVisible = true;
             }
 
-            
             obtenerImagenToken(nombre) {
                 if (!this.monstruos_imagenes || !this.monstruos_imagenes.mapeo_imagenes) {
                     return `${this.TOKENS_DIR}/default.png`;
                 }
                 
-                // Primero, convertir a minúsculas y limpiar el nombre
                 let nombreLimpio = nombre.toLowerCase().trim();
-                
-                // Si el nombre contiene un número al inicio, eliminarlo (ej: "2 lobos temibles" -> "lobos temibles")
                 nombreLimpio = nombreLimpio.replace(/^\d+\s+/, '');
-                  // Normalizar ñ -> n para coincidencias
                 nombreLimpio = nombreLimpio.replace(/ñ/g, 'n');
 
                 nombreLimpio = nombreLimpio
-                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Eliminar tildes
-                    .replace(/[^a-z0-9\s]/g, "") // Eliminar caracteres especiales
-                    .replace(/\s+/g, ' '); // Espacios múltiples a uno
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .replace(/[^a-z0-9\s]/g, "")
+                    .replace(/\s+/g, ' ');
                 
-                // Buscar si el nombre está en el diccionario de plurales
                 if (this.monstruos_imagenes.plurales) {
                     for (const [plural, singular] of Object.entries(this.monstruos_imagenes.plurales)) {
                         if (nombreLimpio === plural) {
@@ -1142,48 +1149,24 @@
                     }
                 }
                 
-                // Si no se encontró en el diccionario, aplicar reglas generales
                 if (nombreLimpio.endsWith('es')) {
                     nombreLimpio = nombreLimpio.slice(0, -2);
                 } else if (nombreLimpio.endsWith('s')) {
                     nombreLimpio = nombreLimpio.slice(0, -1);
                 }
                 
-                // Obtener todas las claves y ordenarlas de más largas a más cortas
-                // Esto asegura que "goblin chamán" se busque antes que "goblin"
                 const clavesOrdenadas = Object.keys(this.monstruos_imagenes.mapeo_imagenes)
                     .sort((a, b) => b.length - a.length);
                 
-                // Buscar coincidencia en el mapeo (empezando por las claves más largas)
                 for (const clave of clavesOrdenadas) {
                     if (nombreLimpio.includes(clave)) {
                         return `${this.TOKENS_DIR}/${this.monstruos_imagenes.mapeo_imagenes[clave]}`;
                     }
                 }
                 
-                // Imagen por defecto si no se encuentra coincidencia
                 return `${this.TOKENS_DIR}/default.png`;
             }
 
-            obtenerTipoEnemigo(nombre) {
-                nombre = nombre.toLowerCase();
-                if (nombre.includes('goblin') || nombre.includes('orco') || nombre.includes('ogro')) return 'humanoide';
-                else if (nombre.includes('esqueleto') || nombre.includes('zombi') || nombre.includes('muerto')) return 'no-muerto';
-                else if (nombre.includes('dragón') || nombre.includes('wyvern') || nombre.includes('grifo')) return 'dragón';
-                else if (nombre.includes('demonio') || nombre.includes('diablo') || nombre.includes('infernal')) return 'demonio';
-                else if (nombre.includes('lobo') || nombre.includes('rata') || nombre.includes('araña')) return 'bestia';
-                else if (nombre.includes('hechicero') || nombre.includes('mago') || nombre.includes('brujo')) return 'magico';
-                else return 'otros';
-            }
-            
-            obtenerColorPorTipo(tipo) {
-                const colores = {
-                    'humanoide': '#8B4513', 'no-muerto': '#696969', 'dragón': '#B22222',
-                    'demonio': '#4B0082', 'bestia': '#556B2F', 'magico': '#9370DB', 'otros': '#2F4F4F'
-                };
-                return colores[tipo] || '#2F4F4F';
-            }
-            
             obtenerAbreviatura(nombre) {
                 if (nombre.length <= 3) return nombre.substring(0, 3);
                 const palabras = nombre.split(' ');
@@ -1191,13 +1174,10 @@
                 return nombre.substring(0, 3).toUpperCase();
             }
             
-            
-            
             ajustarUIResponsive() {
                 const eventLog = document.getElementById('event-log');
                 if (window.innerWidth > 1000) eventLog.style.fontSize = '14px';
                 
-                // Ajustar el tamaño del grid si hay una arena actual
                 if (this.arenaActual && this.arenaActual.imagen) {
                     this.ajustarGridASize(this.arenaActual.imagen);
                 }
@@ -1213,7 +1193,6 @@
                     
                     const configFiles = ['ui_config.json', 'estados.json', 'descansos.json', 'recompensas.json', 'comportamiento.json'];
                     
-                    // Cargar archivos de configuración principales
                     const [uiConfig, estadosConfig, descansosConfig, recompensasConfig, comportamientoConfig] = await Promise.all(
                         configFiles.map(file => 
                             fetch(`${this.DATA_DIR}/${file}`)
@@ -1228,19 +1207,12 @@
                         )
                     );
                     
-                    // Cargar archivos específicos de monstruos
-                    const [tamanosResponse, monstruosExpResponse, monstruosImagenesResponse] = await Promise.all([
-                        fetch(`${this.DATA_DIR}/encuentros/tamanos_monstruos.json`),
-                        fetch(`${this.DATA_DIR}/encuentros/monstruos-exp.json`),
+                    const [monstruosImagenesResponse] = await Promise.all([
                         fetch(`${this.DATA_DIR}/monstruos-imagenes.json`)
                     ]);
                     
-                    if (!tamanosResponse.ok) throw new Error("No se pudo cargar tamanos_monstruos.json");
-                    if (!monstruosExpResponse.ok) throw new Error("No se pudo cargar monstruos-exp.json");
                     if (!monstruosImagenesResponse.ok) throw new Error("No se pudo cargar monstruos-imagenes.json");
                     
-                    this.tamanos_monstruos = await tamanosResponse.json();
-                    this.monstruos_exp = await monstruosExpResponse.json();
                     this.monstruos_imagenes = await monstruosImagenesResponse.json();
                     
                     this.ui_config = uiConfig || {};
@@ -1259,52 +1231,39 @@
                     this.descansos = {};
                     this.recompensas = {};
                     this.comportamiento = {};
-                    this.monstruos_exp = {monstruos: []};
                     this.monstruos_imagenes = {mapeo_imagenes: {}, plurales: {}};
-                    this.tamanos_monstruos = {tamaños: {}};
                 }
             }
 
-            
             async cargarEncuentros() {
                 try {
-                    let archivoEncuentros = '';
-                    if (this.nivel_valor <= 2) archivoEncuentros = 'nivel_1_2.json';
-                    else if (this.nivel_valor <= 4) archivoEncuentros = 'nivel_3_4.json';
-                    else if (this.nivel_valor <= 6) archivoEncuentros = 'nivel_5_6.json';
-                    else archivoEncuentros = 'nivel_7_8.json';
+                    const response = await fetch(`${this.DATA_DIR}/encuentros_nivel_herores_arena.json`);
+                    if (!response.ok) throw new Error("No se pudo cargar encuentros_nivel_herores_arena.json");
                     
-                    const response = await fetch(`${this.DATA_DIR}/encuentros/${archivoEncuentros}`);
-                    if (!response.ok) throw new Error(`No se pudo cargar ${archivoEncuentros}`);
+                    const dataUnificada = await response.json();
                     
-                    this.encuentros = await response.json();
+                    let nivelClave = '';
+                    if (this.nivel_valor <= 2) nivelClave = 'nivel_1_2';
+                    else if (this.nivel_valor <= 4) nivelClave = 'nivel_3_4';
+                    else if (this.nivel_valor <= 6) nivelClave = 'nivel_5_6';
+                    else nivelClave = 'nivel_7_8';
+                    
+                    this.encuentros = dataUnificada[nivelClave] || {};
+                    
+                    console.log(`✅ Encuentros cargados para nivel: ${nivelClave}`, this.encuentros);
+                    
                 } catch (e) {
-                    console.error("Error cargando encuentros:", e);
+                    console.error("Error cargando encuentros unificados:", e);
                     this.mostrarMensajeLog(`No se pudo cargar los encuentros: ${e.message}`, 'enemigo');
                     this.encuentros = {};
                 }
             }
-
             
             inicializarUI() {
                 this.cargarImagenesBotones();
                 this.configurarEventosBotones();   
             }
 
-            obtenerTamanoMonstruo(nombre) {
-                if (this.tamanos_monstruos.tamaños && this.tamanos_monstruos.tamaños[nombre]) {
-                    return this.tamanos_monstruos.tamaños[nombre];
-                }
-                
-                for (const key in this.tamanos_monstruos.tamaños) {
-                    if (nombre.includes(key) || key.includes(nombre)) {
-                        return this.tamanos_monstruos.tamaños[key];
-                    }
-                }
-                
-                return "NORMAL";
-            }
-            
             cargarImagenesBotones() {
                 const botonesConfig = {
                     'btn-nivel-down': 'btn_nivel_down.png', 'btn-nivel-up': 'btn_nivel_up.png',
@@ -1336,8 +1295,6 @@
                 document.getElementById('btn-musica-off').addEventListener('click', () => this.activarMusica());
             }
             
-            
-            
             inicializarEstados() {
                 const limites = this.estados_config.limites || {};
                 this.moral_grupo = limites.moral_max || 10;
@@ -1345,7 +1302,7 @@
                 
                 this.heroes_nivel = null;
                 this.ronda_actual = 1;
-                this.encuentro_actual = null;
+                this.encuentros_seleccionados = [];
                 this.encuentros = {};
                 this.acciones_heroicas = 0;
                 this.acciones_deshonrosas = 0;
@@ -1446,7 +1403,6 @@
                 eventLog.innerHTML = '';
                 this.inicializarEstados();
                 
-                // RESTAURAR CONTROLES AL REINICIAR
                 document.getElementById('btn-iniciar').disabled = false;
                 document.getElementById('btn-ronda').disabled = true;
                 document.getElementById('btn-heroico').disabled = true;
@@ -1476,7 +1432,6 @@
             }
             
             async iniciarArena() {
-
                 if (!this.arenaActual) {
                     this.mostrarMensajeLog("Debes seleccionar una arena primero", 'enemigo');
                     return;
@@ -1485,7 +1440,6 @@
                 this.heroes_nivel = this.nivel_valor;
                 await this.cargarEncuentros();
                 
-                // BLOQUEAR CONTROLES AL INICIAR
                 document.getElementById('btn-iniciar').disabled = true;
                 document.getElementById('btn-ronda').disabled = false;
                 document.getElementById('btn-heroico').disabled = false;
@@ -1520,18 +1474,20 @@
                 }
                 
                 const tirada = Math.floor(Math.random() * 100) + 1;
+                let encuentrosSeleccionados = [];
                 
                 for (const encuentro of encuentros_ronda) {
                     const [rango_min, rango_max] = encuentro.rango.split('-').map(Number);
                     if (tirada >= rango_min && tirada <= rango_max) {
-                        this.encuentro_actual = encuentro.enemigos;
-                        break;
+                        encuentrosSeleccionados.push(encuentro);
                     }
                 }
                 
-                if (!this.encuentro_actual && encuentros_ronda.length > 0) {
-                    this.encuentro_actual = encuentros_ronda[encuentros_ronda.length - 1].enemigos;
+                if (encuentrosSeleccionados.length === 0 && encuentros_ronda.length > 0) {
+                    encuentrosSeleccionados = [encuentros_ronda[encuentros_ronda.length - 1]];
                 }
+                
+                this.encuentros_seleccionados = encuentrosSeleccionados;
                 
                 this.mostrarMensajeLog(`\n=== RONDA ${ronda}: ${tipo_ronda.toUpperCase()} ===`, 'ronda');
                 this.mostrarMensajeLog(`Tirada: ${tirada}`, 'enemigo');
@@ -1540,13 +1496,10 @@
             }
 
             mostrarEnemigos() {
-                if (!this.encuentro_actual) {
+                if (!this.encuentros_seleccionados || this.encuentros_seleccionados.length === 0) {
                     this.mostrarMensajeLog("No hay enemigos en esta ronda", 'enemigo');
                     return 0;
                 }
-                
-                const encuentroProcesado = this.procesarExpresionDados(this.encuentro_actual);
-                const gruposEnemigos = encuentroProcesado.split(" y ");
                 
                 this.mostrarMensajeLog("\nENEMIGOS EN LA ARENA:", 'enemigo');
                 
@@ -1561,46 +1514,35 @@
                 };
                 
                 let expTotal = 0;
-                let expDesglose = [];
                 let enemigosParaGrid = [];
                 
-                for (const grupo of gruposEnemigos) {
-                    const grupoTrim = grupo.trim();
+                for (const encuentro of this.encuentros_seleccionados) {
                     let cantidad = 1;
-                    let nombreCompleto = grupoTrim;
-                    let equipamiento = "";
+                    let nombreLimpio = encuentro.Encuentro;
                     
-                    // Extraer equipamiento (texto entre paréntesis)
-                    const equipamientoMatch = grupoTrim.match(/\((.*?)\)/);
-                    if (equipamientoMatch) {
-                        equipamiento = equipamientoMatch[1];
-                        nombreCompleto = grupoTrim.replace(/\s*\(.*?\)/, '');
+                    if (encuentro.Cantidad && encuentro.Cantidad.includes('d')) {
+                        cantidad = this.procesarCantidadDados(encuentro.Cantidad);
+                    } else if (encuentro.Cantidad) {
+                        cantidad = parseInt(encuentro.Cantidad) || 1;
                     }
                     
-                    const matchCantidad = nombreCompleto.match(/^(\d+)\s+(.+)$/);
-                    if (matchCantidad) {
-                        cantidad = parseInt(matchCantidad[1]);
-                        nombreCompleto = matchCantidad[2];
-                    }
-                    
-                    let nombreLimpio = nombreCompleto.replace(/\s*\(.*\)$/, '')
-                        .replace(/\s*\+.*$/, '')
-                        .trim();
-                    
-                    const monstruoInfo = this.buscarMonstruoPorNombre(nombreLimpio);
+                    const monsterStats = this.buscarMonstruoEnStats(nombreLimpio);
                     
                     let expMonstruo = 0;
-                    if (monstruoInfo) {
-                        expMonstruo = monstruoInfo.exp * cantidad;
+                    if (monsterStats) {
+                        expMonstruo = monsterStats.exp * cantidad;
                         expTotal += expMonstruo;
-                        expDesglose.push({ nombre: nombreLimpio, cantidad: cantidad, expIndividual: monstruoInfo.exp, expTotal: expMonstruo });
                     } else {
-                        const expPorDefecto = this.nivel_valor * 100;
+                        const expPorDefecto = this.obtenerExperienciaMonstruo(nombreLimpio);
                         expMonstruo = expPorDefecto * cantidad;
                         expTotal += expMonstruo;
                     }
                     
-                    enemigosParaGrid.push({ nombre: nombreLimpio, cantidad: cantidad });
+                    enemigosParaGrid.push({ 
+                        nombre: nombreLimpio, 
+                        cantidad: cantidad,
+                        datos: encuentro
+                    });
                     
                     let icono = "👹";
                     for (const [tipo, emoji] of Object.entries(iconos_enemigos)) {
@@ -1610,19 +1552,40 @@
                         }
                     }
                     
-                    if (monstruoInfo) {
-                        let mensajeEnemigo = `${icono} ${cantidad} ${nombreLimpio} (EXP: ${expMonstruo} = ${cantidad} × ${monstruoInfo.exp})`;
-                        if (equipamiento) {
-                            mensajeEnemigo += ` - Equipamiento: ${equipamiento}`;
+                    let mensajeEnemigo = `${icono} ${encuentro.Cantidad || cantidad} ${nombreLimpio} `;
+                    
+                    if (monsterStats) {
+                        mensajeEnemigo += `(Vida: ${monsterStats.vida}, EXP: ${expMonstruo}`;
+                        if (cantidad > 1) {
+                            mensajeEnemigo += ` = ${cantidad} × ${monsterStats.exp}`;
                         }
-                        this.mostrarMensajeLog(mensajeEnemigo, 'enemigo');
+                        mensajeEnemigo += `)`;
                     } else {
-                        let mensajeEnemigo = `${icono} ${cantidad} ${nombreLimpio} (EXP: ${expMonstruo})`;
-                        if (equipamiento) {
-                            mensajeEnemigo += ` - Equipamiento: ${equipamiento}`;
-                        }
-                        this.mostrarMensajeLog(mensajeEnemigo, 'enemigo');
+                        mensajeEnemigo += `(EXP: ${expMonstruo})`;
                     }
+                    
+                    if (encuentro.Armas && encuentro.Armas.trim() !== "") {
+                        mensajeEnemigo += ` - Armas: ${encuentro.Armas}`;
+                    }
+                    
+                    if (encuentro.Armadura > 0) {
+                        mensajeEnemigo += ` - Armadura: ${encuentro.Armadura}`;
+                    }
+                    
+                    if (encuentro.Especial && encuentro.Especial.trim() !== "") {
+                        mensajeEnemigo += ` - Especial: ${encuentro.Especial}`;
+                    }
+                    
+                    const hechizos = [];
+                    if (encuentro.Hechizos_Melé > 0) hechizos.push(`Melé: ${encuentro.Hechizos_Melé}`);
+                    if (encuentro.Hechizos_Distancia > 0) hechizos.push(`Distancia: ${encuentro.Hechizos_Distancia}`);
+                    if (encuentro.Hechizos_Apoyo > 0) hechizos.push(`Apoyo: ${encuentro.Hechizos_Apoyo}`);
+                    
+                    if (hechizos.length > 0) {
+                        mensajeEnemigo += ` - Hechizos: ${hechizos.join(', ')}`;
+                    }
+                    
+                    this.mostrarMensajeLog(mensajeEnemigo, 'enemigo');
                 }
                 
                 this.mostrarGridConEnemigos(enemigosParaGrid);
@@ -1634,7 +1597,21 @@
                 
                 return expTotal;
             }
-          
+
+            procesarCantidadDados(expresionDados) {
+                const match = expresionDados.match(/(\d+)d(\d+)/);
+                if (!match) return 1;
+                
+                const cantidadDados = parseInt(match[1]);
+                const carasDado = parseInt(match[2]);
+                
+                let total = 0;
+                for (let i = 0; i < cantidadDados; i++) {
+                    total += Math.floor(Math.random() * carasDado) + 1;
+                }
+                
+                return total;
+            }
 
             mostrarDescansoCorto() {
                 const descanso = this.descansos["corto"];
@@ -1677,112 +1654,6 @@
                 this.mostrarEstadosActuales();
             }
             
-            procesarExpresionDados(expresion, mostrarDetalle = true) {
-                const regexDados = /(\d+)d(\d+)([+-]\d+)?/g;
-                let resultado = expresion;
-                let match;
-                
-                while ((match = regexDados.exec(expresion)) !== null) {
-                    const cantidad = parseInt(match[1]);
-                    const caras = parseInt(match[2]);
-                    const modificador = match[3] ? parseInt(match[3]) : 0;
-                    
-                    let total = 0;
-                    let tiradas = [];
-                    for (let i = 0; i < cantidad; i++) {
-                        const tirada = Math.floor(Math.random() * caras) + 1;
-                        tiradas.push(tirada);
-                        total += tirada;
-                    }
-                    total += modificador;
-                    
-                    let textoReemplazo = `${total}`;
-                    if (mostrarDetalle && cantidad > 1) {
-                        textoReemplazo = `${total} [${match[0]}: ${tiradas.join("+")}${modificador ? modificador : ""}]`;
-                    }
-                    
-                    resultado = resultado.replace(match[0], textoReemplazo);
-                }
-                
-                const regexCantidadFija = /^(\d+)\s+([^0-9].*)$/;
-                const matchFijo = resultado.match(regexCantidadFija);
-                
-                if (matchFijo && !resultado.includes('d')) {
-                    const cantidad = parseInt(matchFijo[1]);
-                    const nombre = matchFijo[2];
-                    resultado = `${cantidad} ${nombre}`;
-                }
-                
-                return resultado;
-            }
-
-            buscarMonstruoPorNombre(nombreBuscado) {
-                if (!this.monstruos_exp.monstruos || this.monstruos_exp.monstruos.length === 0) return null;
-                
-                const nombreLimpio = nombreBuscado.trim().toLowerCase()
-                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                    .replace(/[^a-z0-9\s]/g, "")
-                    .replace(/\s+/g, ' ');
-                
-                // PRIMERA BÚSQUEDA: Coincidencia exacta con cualquier forma del nombre
-                let monstruo = this.monstruos_exp.monstruos.find(m => {
-                    // Modificación: ahora m.nombre puede ser string o array
-                    const nombresMonstruo = Array.isArray(m.nombre) ? m.nombre : [m.nombre];
-                    
-                    return nombresMonstruo.some(nombre => {
-                        const nombreMonstruoLimpio = nombre.toLowerCase()
-                            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                            .replace(/[^a-z0-9\s]/g, "")
-                            .replace(/\s+/g, ' ');
-                        return nombreMonstruoLimpio === nombreLimpio;
-                    });
-                });
-                
-                if (monstruo) return monstruo;
-                
-                // SEGUNDA BÚSQUEDA: Coincidencia parcial (incluye o está incluido)
-                monstruo = this.monstruos_exp.monstruos.find(m => {
-                    const nombresMonstruo = Array.isArray(m.nombre) ? m.nombre : [m.nombre];
-                    
-                    return nombresMonstruo.some(nombre => {
-                        const nombreMonstruoLimpio = nombre.toLowerCase()
-                            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                            .replace(/[^a-z0-9\s]/g, "")
-                            .replace(/\s+/g, ' ');
-                        
-                        return nombreLimpio.includes(nombreMonstruoLimpio) || 
-                            nombreMonstruoLimpio.includes(nombreLimpio);
-                    });
-                });
-                
-                if (monstruo) return monstruo;
-                
-                // TERCERA BÚSQUEDA: Por palabras clave (tu sistema de respaldo)
-                const palabrasClave = {
-                    'goblin': 'Goblin', 'zombi': 'Zombi', 'lobo': 'Lobo Gigante', 'bandido': 'Bandido',
-                    'brujo': 'Brujo', 'esqueleto': 'Esqueleto', 'orco': 'Orco', 'sátiro': 'Sátiro',
-                    'saurio': 'Saurio', 'tumulario': 'Tumulario', 'gnoll': 'Gnoll', 'sanguijuela': 'Sanguijuela Gigante',
-                    'necrófago': 'Necrófago', 'hombre bestia': 'Hombre Bestia', 'araña': 'Araña Gigante',
-                    'ogro': 'Ogro', 'nigromante': 'Nigromante', 'licántropo': 'Licántropo','licantropo': 'Licántropo','enredador': 'Enredador',
-                    'troll': 'Troll Común', 'minotauro': 'Minotauro', 'momia': 'Momia', 'elfo oscuro': 'Elfo Oscuro',
-                    'ettin': 'Ettin', 'espectro': 'Espectro', 'gárgola': 'Gárgola', 'wyvern': 'Wyvern',
-                    'demonio': 'Demonio de Sangre', 'guardian': 'Guardián de la Tumba', 'psíquico': 'Psíquico',
-                    'esfinge': 'Esfinge', 'naga': 'Naga', 'scorpion': 'Escorpión Gigante', 'vampiro': 'Vampiro',
-                    'hidra': 'Hidra', 'gigante': 'Gigante', 'dragón': 'Dragón'
-                };
-                
-                for (const [clave, valor] of Object.entries(palabrasClave)) {
-                    if (nombreLimpio.includes(clave)) {
-                        return this.monstruos_exp.monstruos.find(m => {
-                            const nombresMonstruo = Array.isArray(m.nombre) ? m.nombre : [m.nombre];
-                            return nombresMonstruo.includes(valor);
-                        });
-                    }
-                }
-                
-                return null;
-            }
-
             evaluarAccion(tipo_accion) {
                 if (tipo_accion === "heroica") {
                     this.acciones_heroicas++;
@@ -1835,7 +1706,6 @@
             }
             
             siguienteRonda() {
-                
                 if (this.ronda_actual >= 3) {
                     this.finalizarArena();
                     return;
@@ -1858,12 +1728,11 @@
                     this.mostrarMensajeLog("Los héroes han caído en la arena", 'enemigo');
                 }
                 
-                // RESTAURAR CONTROLES AL FINALIZAR (pero mantener iniciar deshabilitado hasta reinicio)
                 document.getElementById('btn-ronda').disabled = true;
                 document.getElementById('btn-heroico').disabled = true;
                 document.getElementById('btn-deshonroso').disabled = true;
-                document.getElementById('btn-iniciar').disabled = false; // Permitir nuevo inicio
-                document.getElementById('btn-nivel-up').disabled = true; // Mantener bloqueados
+                document.getElementById('btn-iniciar').disabled = false;
+                document.getElementById('btn-nivel-up').disabled = true;
                 document.getElementById('btn-nivel-down').disabled = true;
                 document.getElementById('btn-apuesta-up').disabled = true;
                 document.getElementById('btn-apuesta-down').disabled = true;
